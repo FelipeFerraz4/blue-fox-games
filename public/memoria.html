@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jogo da Memória · Blue Fox Games</title>
+  <link rel="icon" href="/Favicon_logo5.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/site.css" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div id="site-header" data-active="games"></div>
+
+  <main>
+    <div class="status-row"><span class="conn" id="conn" data-state="connecting">Conectando…</span></div>
+
+    <!-- Tela inicial: criar ou entrar -->
+    <section id="screen-home" class="screen home">
+      <h1>Jogo da Memória</h1>
+      <p class="lead">Desafie alguém em qualquer lugar. Crie uma sala e envie o link.</p>
+
+      <div class="panel">
+        <label class="field">
+          <span>Seu nome</span>
+          <input id="name" maxlength="20" autocomplete="nickname" placeholder="Como quer ser chamado?" />
+        </label>
+
+        <div class="split">
+          <form id="form-create" class="box">
+            <h2>Nova partida</h2>
+            <label class="field">
+              <span>Tamanho</span>
+              <select id="pairs">
+                <option value="8">Fácil · 16 cartas</option>
+                <option value="12">Médio · 24 cartas</option>
+                <option value="18">Difícil · 36 cartas</option>
+              </select>
+            </label>
+            <button class="btn btn-primary" type="submit">Criar sala</button>
+          </form>
+
+          <form id="form-join" class="box">
+            <h2>Tenho um código</h2>
+            <label class="field">
+              <span>Código da sala</span>
+              <input id="code" maxlength="4" autocomplete="off" placeholder="ABCD" class="code-input" />
+            </label>
+            <button class="btn btn-outline" type="submit">Entrar</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sala aguardando o segundo jogador -->
+    <section id="screen-lobby" class="screen lobby" hidden>
+      <h1>Sala criada!</h1>
+      <p class="lead">Envie este link para a outra pessoa. A partida começa quando ela entrar.</p>
+      <div class="panel center">
+        <div class="room-code" id="lobby-code">····</div>
+        <div class="share">
+          <input id="share-link" readonly />
+          <button class="btn btn-primary" id="copy-link" type="button">Copiar link</button>
+        </div>
+        <p class="waiting"><span class="dot-pulse"></span> Aguardando adversário…</p>
+        <button class="btn btn-ghost" data-action="leave" type="button">Cancelar</button>
+      </div>
+    </section>
+
+    <!-- Partida -->
+    <section id="screen-game" class="screen game" hidden>
+      <div class="scoreboard">
+        <div class="player p0" id="player-0"></div>
+        <div class="turn" id="turn"></div>
+        <div class="player p1" id="player-1"></div>
+      </div>
+      <div class="board" id="board"></div>
+      <div class="game-footer">
+        <span>Sala <strong id="game-code"></strong></span>
+        <button class="btn btn-ghost btn-sm" data-action="leave" type="button">Sair</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Resultado -->
+  <div class="overlay" id="result" hidden>
+    <div class="result-card">
+      <div class="result-emoji" id="result-emoji"></div>
+      <h2 id="result-title"></h2>
+      <p id="result-score"></p>
+      <div class="result-actions">
+        <button class="btn btn-primary" id="rematch" type="button">Jogar de novo</button>
+        <button class="btn btn-ghost" data-action="leave" type="button">Sair</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="/site.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
