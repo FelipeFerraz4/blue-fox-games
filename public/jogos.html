@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Catálogo de jogos · BlueFox Games</title>
+  <meta name="description" content="Todos os jogos do BlueFox Games para jogar no navegador, sozinho ou com amigos." />
+  <link rel="icon" href="/Favicon_logo5.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/site.css" />
+</head>
+<body class="site">
+  <div id="site-header" data-active="games"></div>
+
+  <main>
+    <section class="page-hero">
+      <div class="section-badge">CATÁLOGO DE JOGOS</div>
+      <h1 class="page-title">Escolha seu jogo</h1>
+      <p class="page-subtitle">
+        Jogos rápidos para jogar no navegador, sem instalar nada e sem cadastro. Novos jogos entram aqui conforme forem lançados.
+      </p>
+    </section>
+
+    <div class="page-body">
+      <div class="tabs" role="tablist" id="filters"></div>
+      <div class="catalog-grid" id="catalog"></div>
+      <p class="catalog-empty" id="catalog-empty" hidden>Nenhum jogo neste filtro ainda. Veja o que vem por aí nas <a href="/atualizacoes">atualizações</a>.</p>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="/site.js"></script>
+  <script src="/games.js"></script>
+  <script>
+    (() => {
+      const FILTERS = [
+        { key: 'all', label: 'Todos' },
+        { key: 'multiplayer', label: 'Multiplayer' },
+        { key: 'single', label: 'Single player' },
+      ];
+      const games = window.BF_GAMES || [];
+      const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+      const count = (key) => games.filter((g) => key === 'all' || g.modes.includes(key)).length;
+
+      const filters = document.getElementById('filters');
+      const catalog = document.getElementById('catalog');
+      const empty = document.getElementById('catalog-empty');
+
+      filters.innerHTML = FILTERS.map((f) =>
+        `<button type="button" role="tab" class="tab" data-filter="${f.key}">${f.label} (${count(f.key)})</button>`).join('');
+
+      const META_ICONS = {
+        players: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>',
+        duration: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+      };
+
+      const card = (g) => {
+        const available = g.status === 'available';
+        return `
+          <article class="catalog-card${available ? '' : ' soon'}" data-modes="${g.modes.join(' ')}">
+            <div class="catalog-cover">
+              <div class="cover-cards">${(g.cover || []).map((c, i) => `<span class="${i % 2 ? 'up' : 'back'}">${i % 2 ? c : ''}</span>`).join('')}</div>
+              <div class="cover-emoji">${g.emoji}</div>
+              <span class="chip ${available ? 'green' : 'amber'} cover-status">${available ? 'Disponível' : 'Em breve'}</span>
+            </div>
+            <div class="catalog-body">
+              <h2>${esc(g.title)}</h2>
+              <div class="game-meta">${g.tags.map((t) => `<span class="chip purple">${esc(t)}</span>`).join('')}</div>
+              <p>${esc(g.description)}</p>
+              <div class="catalog-info">
+                <span>${META_ICONS.players}${esc(g.players)}</span>
+                <span>${META_ICONS.duration}${esc(g.duration)}</span>
+              </div>
+              <details class="rules">
+                <summary>Como jogar</summary>
+                <ol>${g.rules.map((r) => `<li>${esc(r)}</li>`).join('')}</ol>
+              </details>
+              ${available
+                ? `<a href="${g.href}" class="btn-primary-lg btn-block"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Jogar</a>`
+                : `<span class="btn-secondary-lg btn-block btn-disabled">Em breve</span>`}
+            </div>
+          </article>`;
+      };
+
+      // Card fixo no fim: sinaliza que o catálogo vai crescer.
+      const comingSoon = `
+        <a href="/atualizacoes" class="catalog-card placeholder" data-modes="multiplayer single">
+          <div class="placeholder-icon">＋</div>
+          <h2>Mais jogos em breve</h2>
+          <p>Novos jogos single e multiplayer estão no roadmap.</p>
+          <span class="btn-ghost-link">Ver atualizações →</span>
+        </a>`;
+
+      catalog.innerHTML = games.map(card).join('') + comingSoon;
+
+      function select(key) {
+        filters.querySelectorAll('.tab').forEach((b) => {
+          const on = b.dataset.filter === key;
+          b.classList.toggle('active', on);
+          b.setAttribute('aria-selected', String(on));
+        });
+        let visible = 0;
+        catalog.querySelectorAll('.catalog-card:not(.placeholder)').forEach((el) => {
+          const show = key === 'all' || el.dataset.modes.split(' ').includes(key);
+          el.hidden = !show;
+          if (show) visible++;
+        });
+        empty.hidden = visible > 0;
+      }
+      filters.addEventListener('click', (e) => {
+        const btn = e.target.closest('.tab');
+        if (btn) select(btn.dataset.filter);
+      });
+      select('all');
+    })();
+  </script>
+</body>
+</html>

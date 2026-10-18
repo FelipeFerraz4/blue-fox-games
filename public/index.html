@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BlueFox Games · Jogos online para jogar sozinho ou com amigos</title>
+  <meta name="description" content="Jogos rápidos no navegador do ecossistema Blue Fox. Crie uma sala, envie o link e jogue com quem quiser, sem cadastro." />
+  <link rel="icon" href="/Favicon_logo5.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/site.css" />
+  <script>
+    // Compatibilidade: convites antigos apontavam para /?sala=CODE.
+    if (new URLSearchParams(location.search).has('sala')) location.replace('/memoria' + location.search);
+  </script>
+</head>
+<body class="site">
+  <div id="site-header" data-active="home"></div>
+
+  <main>
+    <!-- 1. Hero -->
+    <section class="hero">
+      <div class="hero-glow"></div>
+      <div class="hero-inner">
+        <div class="badge-pill"><span class="badge-dot"></span>ECOSSISTEMA BLUE FOX &bull; JOGOS ONLINE</div>
+
+        <h1 class="hero-title">
+          Jogos rápidos para jogar sozinho ou
+          <span class="highlight">com quem você quiser</span>
+        </h1>
+
+        <p class="hero-subtitle">
+          Crie uma sala, envie o link e jogue em tempo real com alguém do outro lado da cidade ou do mundo.
+          Direto no navegador, no computador ou no celular, sem instalar nada e sem cadastro.
+        </p>
+
+        <div class="hero-buttons">
+          <a href="/memoria" class="btn-primary-lg">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+            <span>Jogar agora</span>
+          </a>
+          <button type="button" class="btn-secondary-lg" data-login>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Fazer Login</span>
+          </button>
+        </div>
+
+        <!-- Prévia fiel do jogo da memória -->
+        <div class="preview-wrap" aria-hidden="true">
+          <div class="preview-glow"></div>
+          <div class="preview">
+            <div class="mock-head">
+              <div class="dots"><span></span><span></span><span></span></div>
+              <div class="mock-url">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#38b6ff" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span>bluefox-games/memoria?sala=FOX7</span>
+              </div>
+              <div class="mock-badge">PROTÓTIPO &bull; v0.1</div>
+            </div>
+            <div class="mock-body">
+              <div class="mock-scores">
+                <div class="mock-player p0"><span>Felipe<small>Você</small></span><b>3</b></div>
+                <div class="mock-turn">Sua vez!</div>
+                <div class="mock-player p1"><span>Maria<small>Adversário</small></span><b>2</b></div>
+              </div>
+              <div class="mock-board">
+                <div class="mock-card m0">🦊</div>
+                <div class="mock-card"></div>
+                <div class="mock-card m1">🐙</div>
+                <div class="mock-card"></div>
+                <div class="mock-card up">🐢</div>
+                <div class="mock-card"></div>
+                <div class="mock-card"></div>
+                <div class="mock-card m0">🐬</div>
+                <div class="mock-card"></div>
+                <div class="mock-card m1">🦉</div>
+                <div class="mock-card"></div>
+                <div class="mock-card m0">🦊</div>
+                <div class="mock-card m1">🐙</div>
+                <div class="mock-card"></div>
+                <div class="mock-card m0">🐬</div>
+                <div class="mock-card"></div>
+                <div class="mock-card m1">🦉</div>
+                <div class="mock-card"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Jogos -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-badge">CATÁLOGO DE JOGOS</div>
+          <h2 class="section-title">Escolha seu jogo</h2>
+          <p class="section-subtitle">Começamos pelo clássico e vamos crescendo. Acompanhe o que vem por aí na página de atualizações.</p>
+        </div>
+
+        <div class="games-grid">
+          <article class="game-card">
+            <div class="game-emoji">🧠</div>
+            <div class="game-meta">
+              <span class="chip green">Disponível</span>
+              <span class="chip">1x1 online</span>
+              <span class="chip purple">Por turnos</span>
+            </div>
+            <h3>Jogo da Memória</h3>
+            <p>Encontre os pares antes do adversário. Acertou, joga de novo; errou, passa a vez. Três tamanhos de tabuleiro, de 16 a 36 cartas.</p>
+            <a href="/memoria" class="btn-primary-lg btn-block">Jogar</a>
+          </article>
+
+          <article class="game-card soon">
+            <div class="game-emoji">🤖</div>
+            <div class="game-meta">
+              <span class="chip purple">Planejado</span>
+              <span class="chip">Single player</span>
+            </div>
+            <h3>Memória contra o computador</h3>
+            <p>Treine sozinho contra um adversário com níveis de dificuldade, para jogar mesmo quando não tiver ninguém online.</p>
+            <a href="/atualizacoes" class="btn-ghost-link">Ver no roadmap →</a>
+          </article>
+
+          <article class="game-card soon">
+            <div class="game-emoji">🎲</div>
+            <div class="game-meta">
+              <span class="chip purple">Planejado</span>
+              <span class="chip">Multiplayer</span>
+            </div>
+            <h3>Novos jogos</h3>
+            <p>Mais clássicos de tabuleiro e de raciocínio usando a mesma base de salas e convites por link.</p>
+            <a href="/atualizacoes" class="btn-ghost-link">Ver no roadmap →</a>
+          </article>
+        </div>
+
+        <div class="center" style="margin-top:2rem">
+          <a href="/jogos" class="btn-secondary-lg">Ver catálogo completo →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Recursos -->
+    <section class="section alt">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-badge">COMO FUNCIONA</div>
+          <h2 class="section-title">Feito para jogar à distância</h2>
+          <p class="section-subtitle">Tudo o que o protótipo já entrega hoje.</p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature">
+            <div class="feature-icon icon-blue">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            </div>
+            <h3>Convite por link</h3>
+            <p>Crie a sala e envie o link ou o código de 4 letras. A partida começa assim que a outra pessoa entra.</p>
+          </div>
+          <div class="feature">
+            <div class="feature-icon icon-purple">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h3>Jogo justo</h3>
+            <p>O servidor controla a partida e só revela uma carta quando ela é virada. Não dá para espiar pelo navegador.</p>
+          </div>
+          <div class="feature">
+            <div class="feature-icon icon-green">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            </div>
+            <h3>Reconexão automática</h3>
+            <p>Caiu a internet ou recarregou a página? Você volta para o mesmo lugar, com o placar intacto.</p>
+          </div>
+          <div class="feature">
+            <div class="feature-icon icon-amber">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            </div>
+            <h3>Computador e celular</h3>
+            <p>Interface responsiva: cada jogador usa o aparelho que tiver à mão, sem instalar aplicativo.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Resumo do Sobre -->
+    <section class="section">
+      <div class="container">
+        <div class="about-card">
+          <div class="section-head" style="margin-bottom:0">
+            <div class="section-badge">NOSSA HISTÓRIA</div>
+            <h2 class="section-title">A origem do BlueFox Games</h2>
+            <p class="section-subtitle">A vertical de entretenimento do Blue Fox Global Group, construída sobre a mesma tecnologia dos outros produtos do ecossistema.</p>
+          </div>
+
+          <div class="about-grid">
+            <div class="about-box">
+              <div class="feature-icon icon-purple">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <div>
+                <h3>Aproximar pessoas</h3>
+                <p>Nasceu da vontade de jogar com quem está longe: um link basta para começar uma partida juntos.</p>
+              </div>
+            </div>
+            <div class="about-box">
+              <div class="feature-icon icon-blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+              </div>
+              <div>
+                <h3>Parte do ecossistema Blue Fox</h3>
+                <p>Mesma identidade e, em breve, o mesmo login do BlueFox Finance e do Blue Fox Aquarismo.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="center">
+            <a href="/sobre" class="btn-ghost-link">Conhecer a história completa →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Chamada final -->
+    <section class="section" style="padding-top:0">
+      <div class="container">
+        <div class="cta-box">
+          <h2>Pronto para a primeira partida?</h2>
+          <p>Jogue agora como convidado ou faça login para acompanhar as novidades.</p>
+          <div class="cta-actions">
+            <a href="/memoria" class="btn-primary-lg">Jogar agora</a>
+            <button type="button" class="btn-secondary-lg" data-login>Fazer Login</button>
+            <a href="/atualizacoes" class="btn-ghost-link">Ver atualizações &amp; roadmap →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="/site.js"></script>
+</body>
+</html>

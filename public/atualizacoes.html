@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Atualizações &amp; Roadmap · BlueFox Games</title>
+  <meta name="description" content="O que já funciona no BlueFox Games, o que está em desenvolvimento e o que vem por aí." />
+  <link rel="icon" href="/Favicon_logo5.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/site.css" />
+</head>
+<body class="site">
+  <div id="site-header" data-active="updates"></div>
+
+  <main>
+    <section class="page-hero">
+      <div class="section-badge">TRANSPARÊNCIA &amp; EVOLUÇÃO</div>
+      <h1 class="page-title">Atualizações &amp; Roadmap</h1>
+      <p class="page-subtitle">
+        Acompanhe o que já está funcionando no BlueFox Games, o que estamos construindo agora e as novidades planejadas.
+      </p>
+    </section>
+
+    <div class="page-body">
+      <div class="tabs" role="tablist" id="tabs"></div>
+      <div class="columns" id="columns"></div>
+
+      <section class="section" style="padding-inline:0">
+        <div class="container">
+          <div class="cta-box">
+            <h2>Quer testar a versão em funcionamento?</h2>
+            <p>O Jogo da Memória 1x1 online já está disponível. Crie uma sala e chame alguém.</p>
+            <div class="cta-actions">
+              <a href="/memoria" class="btn-primary-lg">Jogar agora</a>
+              <button type="button" class="btn-secondary-lg" data-login>Fazer Login</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="/site.js"></script>
+  <script>
+    (() => {
+      // Fonte única do roadmap: edite aqui ao lançar ou planejar algo.
+      const COLUMNS = [
+        {
+          key: 'done', title: 'Disponível', dot: 'dot-green', chip: 'green', card: '',
+          desc: 'Funcionando na versão atual (v0.1).',
+          items: [
+            { title: 'Jogo da Memória 1x1 online', badge: 'v0.1', desc: 'Partidas por turnos entre duas pessoas em lugares diferentes.',
+              details: ['Acertou o par, joga de novo; errou, passa a vez', 'Tabuleiros de 16, 24 e 36 cartas', 'Placar, vencedor e revanche com alternância de quem começa'] },
+            { title: 'Salas com convite por link', badge: 'v0.1', desc: 'Cada partida tem um código de 4 letras fácil de ditar.',
+              details: ['Link pronto para copiar e enviar', 'Entrada pelo código na tela inicial', 'Sala limitada a dois jogadores'] },
+            { title: 'Reconexão automática', badge: 'v0.1', desc: 'Queda de internet não encerra a partida.',
+              details: ['Volta ao mesmo assento ao reabrir o link', 'Aviso quando o adversário sai e volta'] },
+            { title: 'Servidor autoritativo', badge: 'v0.1', desc: 'Toda jogada é validada no servidor.',
+              details: ['Cartas viradas para baixo nunca chegam ao navegador', 'Jogadas fora da vez são recusadas'] },
+          ],
+        },
+        {
+          key: 'progress', title: 'Em desenvolvimento', dot: 'dot-amber', chip: 'amber', card: 'progress',
+          desc: 'O que está sendo construído agora.',
+          items: [
+            { title: 'Portal público', badge: 'Agora', desc: 'Páginas de Início, Sobre e Atualizações no padrão do ecossistema Blue Fox.',
+              details: ['Header e rodapé compartilhados', 'Layout responsivo com menu mobile'] },
+            { title: 'Publicação online', badge: 'Agora', desc: 'Deploy no servidor Blue Fox com domínio próprio e HTTPS.',
+              details: ['Container Docker na infra Blue Fox', 'Proxy com suporte a WebSocket'] },
+          ],
+        },
+        {
+          key: 'future', title: 'Planejado', dot: 'dot-purple', chip: 'purple', card: 'future',
+          desc: 'Próximas etapas do roadmap.',
+          items: [
+            { title: 'Login com Blue Fox ID', badge: 'Futuro', desc: 'Conta única do ecossistema via Blue Fox IAM (Keycloak).',
+              details: ['Jogar como convidado continua disponível', 'Mesmo login do Finance e do Aquarismo'] },
+            { title: 'Histórico e ranking', badge: 'Futuro', desc: 'Partidas salvas e classificação entre jogadores.',
+              details: ['Estatísticas de vitórias e pares encontrados', 'Ranking por jogo'] },
+            { title: 'Memória contra o computador', badge: 'Futuro', desc: 'Modo single player com níveis de dificuldade.',
+              details: ['Para jogar sem precisar de outra pessoa online'] },
+            { title: 'Novos jogos', badge: 'Futuro', desc: 'Mais clássicos usando a mesma base de salas e convites.',
+              details: ['Jogos de tabuleiro e de raciocínio', 'Lobby com salas públicas'] },
+          ],
+        },
+      ];
+
+      const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+      const tabs = document.getElementById('tabs');
+      const columns = document.getElementById('columns');
+
+      const TABS = [{ key: 'all', title: 'Visão geral' }, ...COLUMNS];
+      tabs.innerHTML = TABS.map((t) => `
+        <button type="button" role="tab" class="tab" data-tab="${t.key}">
+          ${t.dot ? `<span class="tab-dot ${t.dot}"></span>` : ''}${t.title}${t.items ? ` (${t.items.length})` : ''}
+        </button>`).join('');
+
+      columns.innerHTML = COLUMNS.map((c) => `
+        <section class="status-col" data-col="${c.key}">
+          <div class="col-head">
+            <h2 class="col-title"><span class="tab-dot ${c.dot}"></span>${c.title}</h2>
+            <span class="chip ${c.chip}">${c.items.length} itens</span>
+          </div>
+          <p class="col-desc">${c.desc}</p>
+          <div class="cards-list">
+            ${c.items.map((i) => `
+              <div class="update-card ${c.card}">
+                <div class="card-top"><h3>${esc(i.title)}</h3><span class="chip ${c.chip}">${esc(i.badge)}</span></div>
+                <p>${esc(i.desc)}</p>
+                <ul>${i.details.map((d) => `<li>${esc(d)}</li>`).join('')}</ul>
+              </div>`).join('')}
+          </div>
+        </section>`).join('');
+
+      function select(key) {
+        tabs.querySelectorAll('.tab').forEach((b) => {
+          const on = b.dataset.tab === key;
+          b.classList.toggle('active', on);
+          b.setAttribute('aria-selected', String(on));
+        });
+        columns.querySelectorAll('.status-col').forEach((col) => (col.hidden = key !== 'all' && col.dataset.col !== key));
+        columns.classList.toggle('single', key !== 'all');
+      }
+      tabs.addEventListener('click', (e) => {
+        const btn = e.target.closest('.tab');
+        if (btn) select(btn.dataset.tab);
+      });
+      select('all');
+    })();
+  </script>
+</body>
+</html>
