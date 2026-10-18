@@ -1,0 +1,20 @@
+services:
+  games:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: blue-fox-games
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: ${PORT:-3001}
+    expose:
+      - "${PORT:-3001}"
+    networks:
+      - infra-net
+
+networks:
+  infra-net:
+    name: ${DOCKER_NETWORK:-infra-net}
+    external: true

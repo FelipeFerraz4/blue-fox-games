@@ -1,0 +1,11 @@
+services:
+  games:
+    build:
+      target: development
+    environment:
+      NODE_ENV: development
+    ports:
+      - "${PORT:-3001}:${PORT:-3001}"
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
