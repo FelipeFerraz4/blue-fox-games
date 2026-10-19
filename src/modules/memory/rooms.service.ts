@@ -6,6 +6,8 @@ const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 const CODE_LENGTH = 4;
 /** Sala sem ninguém conectado é removida após esse tempo. */
 const EMPTY_ROOM_TTL_MS = 30 * 60 * 1000;
+/** Teto de salas simultâneas: protege a memória do container contra criação em massa. */
+const MAX_ROOMS = Number(process.env.MAX_ROOMS) || 500;
 
 export interface Room {
   code: string;
@@ -24,6 +26,10 @@ export class RoomsService {
   private readonly rooms = new Map<string, Room>();
 
   create(pairs: PairCount): Room {
+    if (this.rooms.size >= MAX_ROOMS) {
+      throw new GameError('Servidor lotado no momento. Tente novamente em alguns minutos.');
+    }
+
     let code: string;
     do {
       code = Array.from(

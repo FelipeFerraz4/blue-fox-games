@@ -2,7 +2,7 @@
 
 Plataforma de jogos web single e multiplayer. **Estágio atual: protótipo** com um único jogo, o **Jogo da Memória 1x1 online** (duas pessoas em lugares diferentes, por turnos).
 
-- **Stack**: NestJS 10 + `@nestjs/websockets` / Socket.IO 4. O próprio backend serve um cliente estático em vanilla JS (`public/`).
+- **Stack**: NestJS 11 + `@nestjs/websockets` / Socket.IO 4. O próprio backend serve um cliente estático em vanilla JS (`public/`).
 - **Porta**: 3001 · namespace WebSocket `/memory` · container `blue-fox-games` na `infra-net`.
 - **Sem banco e sem login** no protótipo: salas em memória, jogador identificado por um UUID anônimo no `localStorage`.
 
@@ -12,6 +12,7 @@ Plataforma de jogos web single e multiplayer. **Estágio atual: protótipo** com
 src/
 ├── main.ts                         # bootstrap + serve public/ como estático
 ├── app.module.ts
+├── common/                         # rate-limiter.ts (janela deslizante, TS puro + spec) e client-ip.ts (X-Forwarded-For)
 └── modules/memory/
     ├── memory-game.ts              # REGRAS em TS puro (sem Nest): embaralhar, virar, par/erro, vez, placar, revanche
     ├── memory-game.spec.ts         # testes das regras
@@ -49,6 +50,7 @@ Servidor → cliente: `game:state` `{ code, you, state }`, enviado a cada mudan�
 3. Mensagens de erro de regra usam `GameError` e voltam no ack. Exceções inesperadas são logadas e o cliente recebe uma mensagem genérica.
 4. Reconexão: o mesmo `playerId` volta ao mesmo assento. O cliente refaz o `room:join` automaticamente no evento `connect`.
 5. Salas em memória ⇒ **uma instância só**. Reiniciar o container encerra as partidas. Para escalar: Redis + `@socket.io/redis-adapter`.
+6. **Limites contra abuso** (env, com defaults): `MAX_ROOMS` (500 salas no total), `MAX_CONNECTIONS_PER_IP` (20 sockets), `ROOM_CREATE_LIMIT_PER_MIN` (10 salas por IP/min) e mensagens de no máximo 4 KB. Atrás do proxy use `TRUST_PROXY=true`, senão todos os jogadores aparecem com o IP do proxy e dividem o mesmo limite. Ao trocar de sala, o socket sai da anterior **e** o jogador fica offline nela, senão a sala nunca é limpa.
 
 ## Próximos passos planejados
 

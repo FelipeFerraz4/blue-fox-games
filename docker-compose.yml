@@ -9,6 +9,10 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: ${PORT:-3001}
+      TRUST_PROXY: ${TRUST_PROXY:-false}
+      MAX_ROOMS: ${MAX_ROOMS:-500}
+      MAX_CONNECTIONS_PER_IP: ${MAX_CONNECTIONS_PER_IP:-20}
+      ROOM_CREATE_LIMIT_PER_MIN: ${ROOM_CREATE_LIMIT_PER_MIN:-10}
     expose:
       - "${PORT:-3001}"
     networks:

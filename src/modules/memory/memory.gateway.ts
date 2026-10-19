@@ -1,7 +1,8 @@
-import { Logger } from '@nestjs/common';
+import { Logger, OnModuleDestroy } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
+  OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
@@ -10,30 +11,62 @@ import {
 import { Namespace, Socket } from 'socket.io';
 import { ALLOWED_PAIRS, GameError, PairCount } from './memory-game';
 import { Room, RoomsService } from './rooms.service';
+import { RateLimiter } from '../../common/rate-limiter';
+import { clientIp } from '../../common/client-ip';
 
 /** Quanto tempo as duas cartas erradas ficam visíveis antes de esconder. */
 const MISMATCH_REVEAL_MS = 1200;
 const MAX_NAME_LENGTH = 20;
+/** Conexões simultâneas por IP (abas, reconexões). Folgado para redes compartilhadas (NAT, escola). */
+const MAX_CONNECTIONS_PER_IP = Number(process.env.MAX_CONNECTIONS_PER_IP) || 20;
+/** Salas criadas por IP por minuto. */
+const ROOM_CREATE_LIMIT_PER_MIN = Number(process.env.ROOM_CREATE_LIMIT_PER_MIN) || 10;
+/** Tamanho máximo de uma mensagem Socket.IO; os payloads do jogo têm poucas dezenas de bytes. */
+const MAX_MESSAGE_BYTES = 4 * 1024;
 
 interface SocketData {
   code?: string;
   playerId?: string;
+  ip?: string;
 }
 
 type Ack = { ok: true; code?: string } | { ok: false; error: string };
 
-@WebSocketGateway({ namespace: '/memory' })
-export class MemoryGateway implements OnGatewayDisconnect {
+@WebSocketGateway({ namespace: '/memory', maxHttpBufferSize: MAX_MESSAGE_BYTES })
+export class MemoryGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleDestroy {
   @WebSocketServer() server: Namespace;
   private readonly logger = new Logger(MemoryGateway.name);
+  private readonly connectionsPerIp = new Map<string, number>();
+  private readonly createLimiter = new RateLimiter(ROOM_CREATE_LIMIT_PER_MIN, 60_000);
+  private readonly pruneTimer = setInterval(() => this.createLimiter.prune(), 60_000).unref();
 
   constructor(private readonly rooms: RoomsService) {}
+
+  onModuleDestroy(): void {
+    clearInterval(this.pruneTimer);
+  }
+
+  handleConnection(socket: Socket): void {
+    const ip = clientIp(socket);
+    const count = (this.connectionsPerIp.get(ip) ?? 0) + 1;
+    if (count > MAX_CONNECTIONS_PER_IP) {
+      this.logger.warn(`Conexão recusada: ${ip} passou de ${MAX_CONNECTIONS_PER_IP} conexões`);
+      socket.disconnect(true);
+      return;
+    }
+    this.connectionsPerIp.set(ip, count);
+    socket.data = { ip } satisfies SocketData;
+  }
 
   @SubscribeMessage('room:create')
   create(@ConnectedSocket() socket: Socket, @MessageBody() body: unknown): Ack {
     return this.handle(() => {
       const { playerId, name, pairs } = this.parseIdentity(body);
       if (!ALLOWED_PAIRS.includes(pairs as PairCount)) throw new GameError('Tamanho de tabuleiro inválido.');
+      const { ip } = socket.data as SocketData;
+      if (!this.createLimiter.tryConsume(ip ?? clientIp(socket))) {
+        throw new GameError('Muitas salas criadas em pouco tempo. Aguarde um minuto e tente de novo.');
+      }
 
       const room = this.rooms.create(pairs as PairCount);
       this.enter(socket, room, playerId, name);
@@ -85,8 +118,18 @@ export class MemoryGateway implements OnGatewayDisconnect {
   }
 
   handleDisconnect(socket: Socket): void {
-    const { code, playerId } = socket.data as SocketData;
-    if (!code || !playerId) return;
+    const { code, playerId, ip } = socket.data as SocketData;
+    // Sem `ip` a conexão foi recusada em handleConnection e não entrou na contagem.
+    if (ip) {
+      const remaining = (this.connectionsPerIp.get(ip) ?? 1) - 1;
+      if (remaining > 0) this.connectionsPerIp.set(ip, remaining);
+      else this.connectionsPerIp.delete(ip);
+    }
+    if (code && playerId) this.leaveRoom(socket, code, playerId);
+  }
+
+  /** Marca o jogador offline na sala (se não tiver outra conexão nela) e agenda a limpeza. */
+  private leaveRoom(socket: Socket, code: string, playerId: string): void {
     try {
       const room = this.rooms.get(code);
       // Só marca offline se não houver outra aba/conexão do mesmo jogador na sala.
@@ -103,10 +146,14 @@ export class MemoryGateway implements OnGatewayDisconnect {
 
   private enter(socket: Socket, room: Room, playerId: string, name: string): void {
     const previous = socket.data as SocketData;
-    if (previous.code && previous.code !== room.code) socket.leave(previous.code);
+    if (previous.code && previous.code !== room.code) {
+      // Sem isso a sala anterior ficaria com o jogador "conectado" para sempre e nunca seria limpa.
+      socket.leave(previous.code);
+      if (previous.playerId) this.leaveRoom(socket, previous.code, previous.playerId);
+    }
 
     room.game.join(playerId, name);
-    socket.data = { code: room.code, playerId } satisfies SocketData;
+    socket.data = { code: room.code, playerId, ip: previous.ip } satisfies SocketData;
     socket.join(room.code);
     this.rooms.refreshCleanup(room);
     this.broadcast(room);
