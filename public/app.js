@@ -26,6 +26,7 @@
   let soloTimer = null;
   let selectedFreeLevel = 1;
   let selectedFreeMode = 'time-trial';
+  let activeCampaignWorldTab = 'all';
 
   // ---------- Inicialização de UI ----------
   initModeTabs();
@@ -217,7 +218,8 @@
   }
 
   // ============================================================
-  // RENDERIZAÇÃO DO MAPA DA CAMPANHA (Jornada)
+  // ============================================================
+  // RENDERIZAÇÃO DO MAPA DA CAMPANHA (Jornada em Carrossel)
   // ============================================================
   function renderCampaignMap() {
     const container = $('view-campaign');
@@ -236,10 +238,26 @@
       { num: 5, title: 'Fase Bônus: Desafio Supremo', badge: 'BÔNUS · DESAFIO SUPREMO', cssClass: 'wb' },
     ];
 
-    container.innerHTML = worlds
+    const tabsHtml = `
+      <div class="world-tabs-bar" role="tablist">
+        <button type="button" class="world-tab-btn ${activeCampaignWorldTab === 'all' ? 'active' : ''}" data-filter-world="all">🗺️ Todos</button>
+        ${worlds
+          .map(
+            (w) =>
+              `<button type="button" class="world-tab-btn ${activeCampaignWorldTab === String(w.num) ? 'active' : ''}" data-filter-world="${w.num}">
+                ${w.num === 5 ? '👑 Bônus' : `Mundo ${w.num}`}
+              </button>`,
+          )
+          .join('')}
+      </div>
+    `;
+
+    const worldsHtml = worlds
       .map((world) => {
         const worldStages = stages.filter((s) => s.world === world.num);
         if (worldStages.length === 0) return '';
+        const isVisible = activeCampaignWorldTab === 'all' || activeCampaignWorldTab === String(world.num);
+
         const stageCardsHtml = worldStages
           .map((stage) => {
             const stageIndex = stages.findIndex((s) => s.id === stage.id);
@@ -276,17 +294,144 @@
           })
           .join('');
 
+        const hasMultiStages = worldStages.length > 1;
+
         return `
-          <div class="world-section ${world.cssClass}">
+          <div class="world-section ${world.cssClass}" data-world-section="${world.num}" style="${isVisible ? '' : 'display: none;'}">
             <div class="world-header">
-              <span class="world-badge">${world.badge}</span>
-              <h2 class="world-title">${world.title}</h2>
+              <div class="world-header-left">
+                <span class="world-badge">${world.badge}</span>
+                <h2 class="world-title">${world.title}</h2>
+              </div>
+              ${
+                hasMultiStages
+                  ? `
+                <div class="carousel-header-controls">
+                  <button type="button" class="carousel-arrow-btn prev" data-carousel-world="${world.num}" data-dir="-1" title="Etapa anterior" aria-label="Etapa anterior">‹</button>
+                  <span class="carousel-hint">${worldStages.length} etapas</span>
+                  <button type="button" class="carousel-arrow-btn next" data-carousel-world="${world.num}" data-dir="1" title="Próxima etapa" aria-label="Próxima etapa">›</button>
+                </div>
+              `
+                  : ''
+              }
             </div>
-            <div class="stages-grid">${stageCardsHtml}</div>
+            <div class="stages-carousel-wrapper">
+              ${hasMultiStages ? `<button type="button" class="carousel-side-arrow prev" data-carousel-world="${world.num}" data-dir="-1" aria-label="Etapa anterior">‹</button>` : ''}
+              <div class="stages-carousel" id="carousel-world-${world.num}" data-world="${world.num}">
+                ${stageCardsHtml}
+              </div>
+              ${hasMultiStages ? `<button type="button" class="carousel-side-arrow next" data-carousel-world="${world.num}" data-dir="1" aria-label="Próxima etapa">›</button>` : ''}
+            </div>
+            ${
+              hasMultiStages
+                ? `
+              <div class="carousel-dots" id="dots-world-${world.num}">
+                ${worldStages
+                  .map(
+                    (_, i) =>
+                      `<button type="button" class="carousel-dot ${i === 0 ? 'active' : ''}" data-carousel-world="${world.num}" data-dot-index="${i}" aria-label="Etapa ${i + 1}"></button>`,
+                  )
+                  .join('')}
+              </div>
+            `
+                : ''
+            }
           </div>
         `;
       })
       .join('');
+
+    container.innerHTML = tabsHtml + worldsHtml;
+
+    // Filtro de Mundos (World Tabs)
+    container.querySelectorAll('.world-tab-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const filter = btn.dataset.filterWorld;
+        activeCampaignWorldTab = filter;
+        container.querySelectorAll('.world-tab-btn').forEach((b) => b.classList.toggle('active', b === btn));
+        container.querySelectorAll('[data-world-section]').forEach((sec) => {
+          const wNum = sec.dataset.worldSection;
+          sec.style.display = filter === 'all' || filter === wNum ? '' : 'none';
+        });
+      });
+    });
+
+    // Controles de Carrossel para cada Mundo
+    worlds.forEach((world) => {
+      const track = $(`carousel-world-${world.num}`);
+      if (!track) return;
+
+      const dotsContainer = $(`dots-world-${world.num}`);
+      const dots = dotsContainer ? Array.from(dotsContainer.querySelectorAll('.carousel-dot')) : [];
+      const arrows = Array.from(container.querySelectorAll(`[data-carousel-world="${world.num}"][data-dir]`));
+
+      function updateControls() {
+        const card = track.querySelector('.stage-card');
+        const cardWidth = card ? card.offsetWidth + 14 : 240;
+        const index = Math.round(track.scrollLeft / cardWidth);
+
+        dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+
+        const isAtStart = track.scrollLeft <= 5;
+        const isAtEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 5;
+
+        arrows.forEach((btn) => {
+          const dir = parseInt(btn.dataset.dir, 10);
+          if (dir === -1) btn.disabled = isAtStart;
+          if (dir === 1) btn.disabled = isAtEnd;
+        });
+      }
+
+      // Listener de scroll no trilho
+      let scrollTicking = false;
+      track.addEventListener(
+        'scroll',
+        () => {
+          if (!scrollTicking) {
+            window.requestAnimationFrame(() => {
+              updateControls();
+              scrollTicking = false;
+            });
+            scrollTicking = true;
+          }
+        },
+        { passive: true },
+      );
+
+      // Listener de clique nas setas
+      arrows.forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const dir = parseInt(btn.dataset.dir, 10);
+          const card = track.querySelector('.stage-card');
+          const step = card ? card.offsetWidth + 14 : 260;
+          track.scrollBy({ left: dir * step, behavior: 'smooth' });
+        });
+      });
+
+      // Listener de clique nos pontinhos (dots)
+      dots.forEach((dot) => {
+        dot.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const targetIndex = parseInt(dot.dataset.dotIndex, 10);
+          const card = track.querySelector('.stage-card');
+          const step = card ? card.offsetWidth + 14 : 260;
+          track.scrollTo({ left: targetIndex * step, behavior: 'smooth' });
+        });
+      });
+
+      // Estado inicial dos controles
+      updateControls();
+
+      // Se a fase desbloqueada atual for deste mundo, rola até ela
+      const targetStageCard = track.querySelector(`[data-stage-id="${progress.unlockedStageId}"]`);
+      if (targetStageCard) {
+        setTimeout(() => {
+          const cardLeft = targetStageCard.offsetLeft - track.offsetLeft;
+          track.scrollTo({ left: cardLeft, behavior: 'smooth' });
+        }, 120);
+      }
+    });
 
     // Listener para iniciar fases da campanha
     container.querySelectorAll('[data-play-stage]').forEach((btn) => {
@@ -307,6 +452,7 @@
       });
     });
   }
+
 
   // ============================================================
   // MOTOR DE PARTIDA SOLO (Execução Instantânea no Navegador)
