@@ -1,0 +1,577 @@
+/* Blue Fox Games · Fox Pulse (Design System Original Blue Fox)
+ * Console sônico futurista de pads táteis para memória e reflexo.
+ */
+:root {
+  --pulse-green: #10b981;
+  --pulse-green-glow: rgba(16, 185, 129, 0.85);
+  --pulse-green-bg: radial-gradient(circle at 50% 30%, rgba(16, 185, 129, 0.35) 0%, rgba(6, 78, 59, 0.85) 100%);
+
+  --pulse-red: #f43f5e;
+  --pulse-red-glow: rgba(244, 63, 94, 0.85);
+  --pulse-red-bg: radial-gradient(circle at 50% 30%, rgba(244, 63, 94, 0.35) 0%, rgba(136, 19, 55, 0.85) 100%);
+
+  --pulse-yellow: #f59e0b;
+  --pulse-yellow-glow: rgba(245, 158, 11, 0.85);
+  --pulse-yellow-bg: radial-gradient(circle at 50% 30%, rgba(245, 158, 11, 0.35) 0%, rgba(120, 53, 15, 0.85) 100%);
+
+  --pulse-blue: #00f0ff;
+  --pulse-blue-glow: rgba(0, 240, 255, 0.85);
+  --pulse-blue-bg: radial-gradient(circle at 50% 30%, rgba(0, 240, 255, 0.35) 0%, rgba(3, 105, 161, 0.85) 100%);
+}
+
+/* ---------- Layout da Página ---------- */
+.pulse-page {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 12px 20px 48px;
+  text-align: center;
+}
+
+/* Barra superior com Voltar e Ações */
+.pulse-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-back-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s, transform 0.2s;
+}
+.btn-back-link:hover {
+  color: #fff;
+  transform: translateX(-2px);
+}
+
+.pulse-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.highscore-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #fcd34d;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.btn-icon-setting {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-icon-setting:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--brand-light);
+}
+
+/* ============================================================
+   CONSOLE SÔNICO FOX PULSE (DECK DE PADS)
+   ============================================================ */
+.pulse-console-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 8px 0 24px;
+}
+
+.pulse-console {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  background: linear-gradient(165deg, rgba(28, 37, 65, 0.9) 0%, rgba(11, 19, 43, 0.98) 100%);
+  border: 1px solid rgba(56, 182, 255, 0.28);
+  border-radius: 28px;
+  padding: 24px;
+  box-shadow:
+    0 24px 60px rgba(0, 10, 35, 0.75),
+    0 0 0 1px rgba(139, 92, 246, 0.25),
+    inset 0 1px 2px rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(16px);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Display Digital Superior no Console */
+.pulse-display-panel {
+  background: rgba(8, 14, 30, 0.9);
+  border: 1px solid rgba(56, 182, 255, 0.2);
+  border-radius: 20px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.display-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.console-brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.console-brand-badge span {
+  color: var(--brand-light);
+}
+
+/* Equalizador Sônico Animado */
+.sound-equalizer {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 18px;
+  padding: 0 4px;
+}
+.sound-equalizer .eq-bar {
+  width: 3px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--brand-light);
+  transition: height 0.1s ease;
+}
+.sound-equalizer.active .eq-bar:nth-child(1) { animation: eq-wave 0.35s infinite alternate ease-in-out 0.0s; }
+.sound-equalizer.active .eq-bar:nth-child(2) { animation: eq-wave 0.35s infinite alternate ease-in-out 0.1s; }
+.sound-equalizer.active .eq-bar:nth-child(3) { animation: eq-wave 0.35s infinite alternate ease-in-out 0.2s; }
+.sound-equalizer.active .eq-bar:nth-child(4) { animation: eq-wave 0.35s infinite alternate ease-in-out 0.15s; }
+.sound-equalizer.active .eq-bar:nth-child(5) { animation: eq-wave 0.35s infinite alternate ease-in-out 0.05s; }
+
+@keyframes eq-wave {
+  0% { height: 4px; background: var(--brand-light); }
+  50% { height: 18px; background: #a855f7; }
+  100% { height: 10px; background: #34d399; }
+}
+
+.display-main-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.digital-round-box {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.digital-round-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.digital-round-value {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 1.8rem;
+  line-height: 1.1;
+  color: var(--brand-light);
+  text-shadow: 0 0 12px rgba(56, 182, 255, 0.45);
+}
+
+.btn-start-pulse {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 22px;
+  cursor: pointer;
+  color: #fff;
+  background: var(--gradient-games);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-start-pulse:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(139, 92, 246, 0.6);
+}
+.btn-start-pulse:active {
+  transform: translateY(0);
+}
+
+/* ============================================================
+   GRID 2x2 DE BEAT PADS TÁTEIS
+   ============================================================ */
+.pulse-pads-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.pulse-pad {
+  position: relative;
+  aspect-ratio: 1.05 / 1;
+  border-radius: 20px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  transition: transform 0.12s ease, filter 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.45),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+
+.pulse-pad:disabled {
+  cursor: default;
+}
+.pulse-pad:active:not(:disabled) {
+  transform: scale(0.97) translateY(2px);
+}
+
+/* Ícone de Onda de Frequência */
+.pad-wave-icon {
+  width: 32px;
+  height: 32px;
+  opacity: 0.85;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.pad-freq-tag {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Badge de Tecla no Canto */
+.pad-keycap {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  pointer-events: none;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: #fff;
+  background: rgba(11, 19, 43, 0.75);
+  padding: 3px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* 1. Pad Esmeralda (Noroeste) */
+.pulse-pad.pad-green {
+  background: var(--pulse-green-bg);
+  border-color: rgba(16, 185, 129, 0.45);
+  color: #a7f3d0;
+}
+.pulse-pad.pad-green:hover:not(:disabled) {
+  border-color: var(--pulse-green);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
+}
+.pulse-pad.pad-green.lit {
+  background: radial-gradient(circle at 50% 30%, #a7f3d0 0%, #34d399 50%, #10b981 100%);
+  border-color: #a7f3d0;
+  box-shadow:
+    0 0 45px var(--pulse-green-glow),
+    inset 0 0 25px rgba(255, 255, 255, 0.85);
+  color: #064e3b;
+  transform: scale(1.02);
+  filter: brightness(1.25);
+}
+
+/* 2. Pad Rubi (Nordeste) */
+.pulse-pad.pad-red {
+  background: var(--pulse-red-bg);
+  border-color: rgba(244, 63, 94, 0.45);
+  color: #fecdd3;
+}
+.pulse-pad.pad-red:hover:not(:disabled) {
+  border-color: var(--pulse-red);
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.35);
+}
+.pulse-pad.pad-red.lit {
+  background: radial-gradient(circle at 50% 30%, #ffe4e6 0%, #fb7185 50%, #f43f5e 100%);
+  border-color: #ffe4e6;
+  box-shadow:
+    0 0 45px var(--pulse-red-glow),
+    inset 0 0 25px rgba(255, 255, 255, 0.85);
+  color: #881337;
+  transform: scale(1.02);
+  filter: brightness(1.25);
+}
+
+/* 3. Pad Âmbar (Sudoeste) */
+.pulse-pad.pad-yellow {
+  background: var(--pulse-yellow-bg);
+  border-color: rgba(245, 158, 11, 0.45);
+  color: #fef3c7;
+}
+.pulse-pad.pad-yellow:hover:not(:disabled) {
+  border-color: var(--pulse-yellow);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.35);
+}
+.pulse-pad.pad-yellow.lit {
+  background: radial-gradient(circle at 50% 30%, #fffbeb 0%, #fcd34d 50%, #f59e0b 100%);
+  border-color: #fffbeb;
+  box-shadow:
+    0 0 45px var(--pulse-yellow-glow),
+    inset 0 0 25px rgba(255, 255, 255, 0.85);
+  color: #78350f;
+  transform: scale(1.02);
+  filter: brightness(1.25);
+}
+
+/* 4. Pad Ciano Blue Fox (Sudeste) */
+.pulse-pad.pad-blue {
+  background: var(--pulse-blue-bg);
+  border-color: rgba(0, 240, 255, 0.45);
+  color: #cffafe;
+}
+.pulse-pad.pad-blue:hover:not(:disabled) {
+  border-color: var(--pulse-blue);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.35);
+}
+.pulse-pad.pad-blue.lit {
+  background: radial-gradient(circle at 50% 30%, #ecfeff 0%, #67e8f9 50%, #00f0ff 100%);
+  border-color: #ecfeff;
+  box-shadow:
+    0 0 45px var(--pulse-blue-glow),
+    inset 0 0 25px rgba(255, 255, 255, 0.85);
+  color: #0c4a6e;
+  transform: scale(1.02);
+  filter: brightness(1.25);
+}
+
+/* Card de Status da Rodada */
+.pulse-status-card {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(11, 19, 43, 0.7);
+  border: 1px solid rgba(56, 182, 255, 0.2);
+  border-radius: 999px;
+  padding: 10px 24px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  transition: all 0.25s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.status-indicator-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #94a3b8;
+  transition: background 0.25s, box-shadow 0.25s;
+}
+.pulse-status-card.turn-player .status-indicator-dot {
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+}
+.pulse-status-card.turn-pulse .status-indicator-dot {
+  background: #a855f7;
+  box-shadow: 0 0 10px #a855f7;
+}
+.pulse-status-card.turn-error .status-indicator-dot {
+  background: #ef4444;
+  box-shadow: 0 0 10px #ef4444;
+}
+
+/* Barra de Ajuda */
+.pulse-help-bar {
+  margin-top: 14px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ---------- Modal de Teclado ---------- */
+.keymap-modal {
+  max-width: 440px;
+}
+.keymap-presets-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 14px 0;
+}
+.btn-preset {
+  background: rgba(11, 19, 43, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px;
+  cursor: pointer;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  transition: all 0.2s;
+}
+.btn-preset:hover {
+  background: rgba(28, 37, 65, 0.8);
+  border-color: rgba(56, 182, 255, 0.4);
+}
+.btn-preset.active {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: var(--brand-accent);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.3);
+}
+.btn-preset strong { font-size: 0.9rem; color: #fff; }
+.btn-preset span { font-size: 0.72rem; color: var(--text-muted); }
+
+.keymap-color-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+.key-bind-slot {
+  background: rgba(11, 19, 43, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.key-bind-slot:hover {
+  border-color: var(--brand-light);
+  background: rgba(28, 37, 65, 0.9);
+}
+.key-bind-slot.listening {
+  border-color: #f59e0b;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.4);
+  animation: pulse 1s infinite;
+}
+.key-bind-slot span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+}
+.color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.color-dot.green { background: var(--pulse-green); }
+.color-dot.red { background: var(--pulse-red); }
+.color-dot.yellow { background: var(--pulse-yellow); }
+.color-dot.blue { background: var(--pulse-blue); }
+
+.key-tag {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--brand-light);
+  min-width: 24px;
+  text-align: center;
+}
+
+/* ---------- Modal de Game Over ---------- */
+.pulse-result-score {
+  font-family: 'Outfit', sans-serif;
+  font-size: 3.2rem;
+  font-weight: 800;
+  color: var(--brand-light);
+  line-height: 1;
+  margin: 12px 0 4px;
+}
+.pulse-result-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.pulse-result-badge.legend {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+.pulse-result-badge.master {
+  background: rgba(139, 92, 246, 0.2);
+  color: #c4b5fd;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+}
+.pulse-result-badge.regular {
+  background: rgba(56, 182, 255, 0.15);
+  color: var(--brand-light);
+  border: 1px solid rgba(56, 182, 255, 0.3);
+}
+
+@media (max-width: 480px) {
+  .pulse-console { padding: 16px; border-radius: 22px; }
+  .pulse-pads-grid { gap: 10px; }
+  .pulse-pad { border-radius: 16px; padding: 12px; }
+  .display-main-row { flex-direction: column; align-items: stretch; gap: 8px; text-align: center; }
+  .digital-round-box { text-align: center; }
+  .btn-start-pulse { justify-content: center; }
+}

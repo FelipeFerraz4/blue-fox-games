@@ -1,20 +1,21 @@
-/* Blue Fox Games · Motor do Jogo Genius e Sintetizador Web Audio API
+/* Blue Fox Games · Motor do Jogo Fox Pulse & Sintetizador Web Audio API
  * Implementação cliente em Vanilla JS sem dependências externas.
  */
 (() => {
   'use strict';
 
-  const GENIUS_COLORS = ['green', 'red', 'yellow', 'blue'];
+  const PULSE_COLORS = ['green', 'red', 'yellow', 'blue'];
 
-  // Frequências clássicas dos 4 tons musicais (em Hertz)
+  // Frequências ricas dos 4 tons musicais (em Hertz)
+  // Acorde harmônico aberto de Lá menor (A3, C4, E4, A4)
   const SOUND_FREQUENCIES = {
-    green: 329.63, // Mi (E4)
-    red: 261.63,   // Dó (C4)
-    yellow: 220.0, // Lá (A3)
-    blue: 164.81,  // Mi grave (E3)
+    blue: 220.0,    // Lá grave (A3) - 220 Hz
+    yellow: 261.63, // Dó central (C4) - 261.63 Hz
+    red: 329.63,    // Mi (E4) - 329.63 Hz
+    green: 440.0,   // Lá agudo (A4) - 440 Hz
   };
 
-  // Presets rápidos de teclado
+  // Presets de teclado ergonômicos
   const KEY_PRESETS = {
     fghj: {
       name: 'Padrão (F - G - H - J)',
@@ -38,8 +39,8 @@
     },
   };
 
-  const STORAGE_KEYMAP = 'bf-games:genius-keymap';
-  const STORAGE_HIGHSCORE = 'bf-games:genius-highscore';
+  const STORAGE_KEYMAP = 'bf-games:pulse-keymap';
+  const STORAGE_HIGHSCORE = 'bf-games:pulse-highscore';
 
   // ---------- Sintetizador de Áudio (Web Audio API) ----------
   class AudioSynth {
@@ -67,24 +68,38 @@
       if (!freq) return;
 
       const osc = this.ctx.createOscillator();
+      const oscHarmonic = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
+      const gainHarmonic = this.ctx.createGain();
 
+      // Timbre sintetizado moderno: fundamental senoidal + harmônico sutil
       osc.type = 'sine';
       osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
 
-      // Suave ataque e decaimento (envelope ADSR simples)
+      oscHarmonic.type = 'triangle';
+      oscHarmonic.frequency.setValueAtTime(freq * 2, this.ctx.currentTime);
+
       const now = this.ctx.currentTime;
       const durationSec = durationMs / 1000;
 
+      // Envelope ADSR suave
       gain.gain.setValueAtTime(0.001, now);
-      gain.gain.exponentialRampToValueAtTime(0.35, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.32, now + 0.02);
       gain.gain.exponentialRampToValueAtTime(0.001, now + durationSec);
 
+      gainHarmonic.gain.setValueAtTime(0.001, now);
+      gainHarmonic.gain.exponentialRampToValueAtTime(0.08, now + 0.02);
+      gainHarmonic.gain.exponentialRampToValueAtTime(0.001, now + durationSec);
+
       osc.connect(gain);
+      oscHarmonic.connect(gainHarmonic);
       gain.connect(this.ctx.destination);
+      gainHarmonic.connect(this.ctx.destination);
 
       osc.start(now);
+      oscHarmonic.start(now);
       osc.stop(now + durationSec);
+      oscHarmonic.stop(now + durationSec);
     }
 
     playErrorTone(durationMs = 600) {
@@ -98,11 +113,11 @@
       const now = this.ctx.currentTime;
       const durationSec = durationMs / 1000;
 
-      // Frequência decrescente áspera
-      osc.frequency.setValueAtTime(110, now);
-      osc.frequency.exponentialRampToValueAtTime(55, now + durationSec);
+      // Frequência decrescente áspera característica de erro
+      osc.frequency.setValueAtTime(120, now);
+      osc.frequency.exponentialRampToValueAtTime(50, now + durationSec);
 
-      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.setValueAtTime(0.28, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + durationSec);
 
       osc.connect(gain);
@@ -114,7 +129,7 @@
   }
 
   // ---------- Motor de Regras do Jogo ----------
-  class GeniusEngine {
+  class PulseEngine {
     constructor() {
       this.sequence = [];
       this.userIndex = 0;
@@ -130,7 +145,7 @@
     }
 
     nextRound() {
-      const nextColor = GENIUS_COLORS[Math.floor(Math.random() * GENIUS_COLORS.length)];
+      const nextColor = PULSE_COLORS[Math.floor(Math.random() * PULSE_COLORS.length)];
       this.sequence.push(nextColor);
       this.userIndex = 0;
       this.status = 'playing';
@@ -161,10 +176,10 @@
 
     getSpeed() {
       const round = this.sequence.length;
-      if (round <= 4) return { onMs: 460, offMs: 140 };
-      if (round <= 8) return { onMs: 380, offMs: 110 };
-      if (round <= 12) return { onMs: 300, offMs: 90 };
-      return { onMs: 240, offMs: 70 };
+      if (round <= 4) return { onMs: 440, offMs: 140 };
+      if (round <= 8) return { onMs: 360, offMs: 110 };
+      if (round <= 12) return { onMs: 290, offMs: 85 };
+      return { onMs: 220, offMs: 65 };
     }
 
     static getFeedback(score) {
@@ -172,27 +187,27 @@
         return {
           tier: 'Iniciante',
           badge: '🌱',
-          message: 'Bom começo! Pratique mais para afinar a memória e o reflexo.',
+          message: 'Bom começo! Sintonize sua atenção e tente bater sua marca anterior.',
         };
       }
       if (score < 12) {
         return {
-          tier: 'Boa Memória',
+          tier: 'Reflexo Ágil',
           badge: '⚡',
-          message: 'Muito bem! Sua concentração está afiada, quase no nível mestre!',
+          message: 'Excelente ritmo! Seus reflexos e memória estão bem afiados, quase no nível Mestre!',
         };
       }
-      if (score <= 15) {
+      if (score <= 17) {
         return {
-          tier: 'Mestre Genius',
-          badge: '🏆',
-          message: 'Sensacional! Acertar 12 ou mais é uma marca excelente! Memória de raposa!',
+          tier: 'Mestre do Pulso',
+          badge: '🦊',
+          message: 'Sensacional! 12 ou mais pulsos memorizados é uma marca de Mestre! Memória de Raposa!',
         };
       }
       return {
-        tier: 'Gênio Supremo',
+        tier: 'Lenda do Pulso',
         badge: '👑',
-        message: 'Inacreditável! Você tem memória fotográfica absoluta! Um verdadeiro Gênio!',
+        message: 'Inacreditável! Você tem memória fotográfica e reflexo absoluto! Uma verdadeira Lenda Sônica!',
       };
     }
   }
@@ -203,7 +218,6 @@
       const saved = localStorage.getItem(STORAGE_KEYMAP);
       if (saved) return JSON.parse(saved);
     } catch {}
-    // Padrão F - G - H - J
     return { ...KEY_PRESETS.fghj.keys };
   }
 
@@ -243,12 +257,25 @@
     return keyStr.toUpperCase();
   }
 
-  // Exportação global
-  window.BFGenius = {
-    GENIUS_COLORS,
+  // Exportação global moderna
+  window.BFPulse = {
+    PULSE_COLORS,
     KEY_PRESETS,
     AudioSynth,
-    GeniusEngine,
+    PulseEngine,
+    loadKeymap,
+    saveKeymap,
+    loadHighScore,
+    saveHighScore,
+    formatKeyDisplay,
+  };
+
+  // Compatibilidade
+  window.BFGenius = {
+    GENIUS_COLORS: PULSE_COLORS,
+    KEY_PRESETS,
+    AudioSynth,
+    GeniusEngine: PulseEngine,
     loadKeymap,
     saveKeymap,
     loadHighScore,

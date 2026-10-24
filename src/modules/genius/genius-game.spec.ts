@@ -48,7 +48,7 @@ describe('GeniusGame', () => {
     expect(() => game.submitColor('green')).toThrow();
   });
 
-  it('evaluates feedback correctly, marking 12+ as Mestre Genius', () => {
+  it('evaluates feedback correctly, marking 12+ as Mestre do Pulso', () => {
     const fb3 = GeniusGame.getFeedback(3);
     expect(fb3.tier).toBe('Iniciante');
 
@@ -56,11 +56,11 @@ describe('GeniusGame', () => {
     expect(fb10.tier).toBe('Boa Memória');
 
     const fb12 = GeniusGame.getFeedback(12);
-    expect(fb12.tier).toBe('Mestre Genius');
+    expect(fb12.tier).toBe('Mestre do Pulso');
     expect(fb12.message).toContain('12 ou mais é uma marca excelente');
 
     const fb18 = GeniusGame.getFeedback(18);
-    expect(fb18.tier).toBe('Gênio Supremo');
+    expect(fb18.tier).toBe('Lenda Sônica');
   });
 
   it('adjusts playback speed dynamically as rounds increase', () => {

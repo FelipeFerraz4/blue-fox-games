@@ -135,15 +135,17 @@ export class GeniusGame {
     }
     if (score <= 15) {
       return {
-        tier: 'Mestre Genius',
-        badge: '🏆',
+        tier: 'Mestre do Pulso',
+        badge: '🦊',
         message: 'Sensacional! Acertar 12 ou mais é uma marca excelente! Memória de raposa!',
       };
     }
     return {
-      tier: 'Gênio Supremo',
+      tier: 'Lenda Sônica',
       badge: '👑',
-      message: 'Inacreditável! Você tem memória fotográfica absoluta! Um verdadeiro Gênio!',
+      message: 'Inacreditável! Você tem memória fotográfica e reflexo absoluto! Uma verdadeira Lenda!',
     };
   }
 }
+
+export { GeniusGame as PulseGame };
