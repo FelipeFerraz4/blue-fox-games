@@ -1,7 +1,7 @@
 /* Blue Fox Games · Jogo da Memória
  * Cliente com suporte duplo:
  * 1. 1x1 Online Multiplayer via Socket.IO (/memory)
- * 2. Modo Solo (Jornada das 9 Fases & Partida Livre em 4 Níveis com Bot Probabilístico)
+ * 2. Modo Solo (Jornada das 17 Fases em 4 Mundos + Bônus & Partida Livre em 4 Níveis com Bot Probabilístico)
  */
 (() => {
   'use strict';
@@ -133,7 +133,7 @@
     $('panel-online').hidden = isSolo;
 
     $('home-lead').textContent = isSolo
-      ? 'Jogue a campanha com 9 fases ou dispute livremente contra a Raposa.'
+      ? 'Jogue a campanha com 17 fases e 4 mundos ou dispute livremente contra a Raposa.'
       : 'Desafie alguém em qualquer lugar. Crie uma sala e envie o link.';
   }
 
@@ -229,14 +229,17 @@
     const maxUnlocked = unlockedIndex === -1 ? 0 : unlockedIndex;
 
     const worlds = [
-      { num: 1, title: 'Mundo 1: Planície Fácil', cssClass: 'w1' },
-      { num: 2, title: 'Mundo 2: Floresta Média', cssClass: 'w2' },
-      { num: 3, title: 'Mundo 3: Montanha Difícil', cssClass: 'w3' },
+      { num: 1, title: 'Mundo 1: Planície Iniciante', badge: 'MUNDO 1 · INICIANTE', cssClass: 'w1' },
+      { num: 2, title: 'Mundo 2: Floresta Fácil', badge: 'MUNDO 2 · FÁCIL', cssClass: 'w2' },
+      { num: 3, title: 'Mundo 3: Montanha Média', badge: 'MUNDO 3 · MÉDIO', cssClass: 'w3' },
+      { num: 4, title: 'Mundo 4: Pico Difícil', badge: 'MUNDO 4 · DIFÍCIL', cssClass: 'w4' },
+      { num: 5, title: 'Fase Bônus: Desafio Supremo', badge: 'BÔNUS · DESAFIO SUPREMO', cssClass: 'wb' },
     ];
 
     container.innerHTML = worlds
       .map((world) => {
         const worldStages = stages.filter((s) => s.world === world.num);
+        if (worldStages.length === 0) return '';
         const stageCardsHtml = worldStages
           .map((stage) => {
             const stageIndex = stages.findIndex((s) => s.id === stage.id);
@@ -249,17 +252,17 @@
               : '🔒';
 
             const modeBadge = isBoss
-              ? '🦊 Duelo vs Raposa'
+              ? (world.num === 5 ? '👑 Chefão Supremo' : '🦊 Duelo vs Raposa')
               : `⏱️ ${stage.pairs} pares`;
 
             return `
               <div class="stage-card ${isUnlocked ? '' : 'locked'} ${isBoss ? 'is-boss' : ''}" data-stage-id="${stage.id}">
                 <div class="stage-top">
-                  <span class="stage-number">Fase ${stage.id}</span>
+                  <span class="stage-number">${world.num === 5 ? 'Bônus' : `Fase ${stage.id}`}</span>
                   <div class="stage-stars">${starsHtml}</div>
                 </div>
                 <h3 class="stage-title">${stage.title}</h3>
-                <p class="stage-desc">${stage.desc}</p>
+                <p class="stage-desc">${stage.desc || stage.description}</p>
                 <div class="stage-action">
                   <span class="stage-mode-tag">${modeBadge}</span>
                   ${
@@ -276,7 +279,7 @@
         return `
           <div class="world-section ${world.cssClass}">
             <div class="world-header">
-              <span class="world-badge">MUNDO ${world.num}</span>
+              <span class="world-badge">${world.badge}</span>
               <h2 class="world-title">${world.title}</h2>
             </div>
             <div class="stages-grid">${stageCardsHtml}</div>

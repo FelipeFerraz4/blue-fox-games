@@ -6,20 +6,33 @@ import {
 } from './solo-engine';
 
 describe('SoloEngine', () => {
-  it('has 9 campaign stages correctly grouped in 3 worlds', () => {
-    expect(CAMPAIGN_STAGES.length).toBe(9);
+  it('has 17 campaign stages correctly grouped in 4 worlds plus a bonus boss stage', () => {
+    expect(CAMPAIGN_STAGES.length).toBe(17);
     const world1 = CAMPAIGN_STAGES.filter((s) => s.world === 1);
     const world2 = CAMPAIGN_STAGES.filter((s) => s.world === 2);
     const world3 = CAMPAIGN_STAGES.filter((s) => s.world === 3);
+    const world4 = CAMPAIGN_STAGES.filter((s) => s.world === 4);
+    const worldBonus = CAMPAIGN_STAGES.filter((s) => s.world === 5);
 
-    expect(world1.length).toBe(3);
-    expect(world2.length).toBe(3);
-    expect(world3.length).toBe(3);
+    expect(world1.length).toBe(4);
+    expect(world2.length).toBe(4);
+    expect(world3.length).toBe(4);
+    expect(world4.length).toBe(4);
+    expect(worldBonus.length).toBe(1);
 
-    // Each world ends with a vs-bot boss stage
-    expect(world1[2].mode).toBe('vs-bot');
-    expect(world2[2].mode).toBe('vs-bot');
-    expect(world3[2].mode).toBe('vs-bot');
+    // Progression of pairs
+    expect(world1.map((s) => s.pairs)).toEqual([6, 8, 10, 10]);
+    expect(world2.map((s) => s.pairs)).toEqual([8, 10, 12, 12]);
+    expect(world3.map((s) => s.pairs)).toEqual([10, 12, 14, 14]);
+    expect(world4.map((s) => s.pairs)).toEqual([12, 14, 16, 16]);
+    expect(worldBonus.map((s) => s.pairs)).toEqual([18]);
+
+    // Each world ends with a vs-bot boss stage, and the bonus is vs-bot
+    expect(world1[3].mode).toBe('vs-bot');
+    expect(world2[3].mode).toBe('vs-bot');
+    expect(world3[3].mode).toBe('vs-bot');
+    expect(world4[3].mode).toBe('vs-bot');
+    expect(worldBonus[0].mode).toBe('vs-bot');
   });
 
   it('has 4 free-play levels', () => {
@@ -59,7 +72,7 @@ describe('SoloEngine', () => {
   });
 
   it('calculates stars accurately for vs-bot stages', () => {
-    const stage = CAMPAIGN_STAGES[2]; // stage 1.3: vs-bot (6 pairs total)
+    const stage = CAMPAIGN_STAGES[3]; // stage 1.4: vs-bot (10 pairs total)
 
     // Player wins by 4 pairs -> 3 stars
     expect(calculateStars(stage, { won: true, seconds: 50, moves: 10, playerScore: 5, botScore: 1 })).toBe(3);

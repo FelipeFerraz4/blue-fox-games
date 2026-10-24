@@ -475,6 +475,26 @@ input:focus, select:focus { outline: none; border-color: var(--brand-light); box
   color: #fcd34d;
   border-color: rgba(245, 158, 11, 0.35);
 }
+.world-section.w4 .world-badge {
+  background: rgba(239, 68, 68, 0.18);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.38);
+}
+.world-section.wb {
+  background: radial-gradient(circle at top right, rgba(234, 179, 8, 0.12), rgba(11, 19, 43, 0.75));
+  border-color: rgba(234, 179, 8, 0.35);
+  box-shadow: 0 0 30px rgba(234, 179, 8, 0.1);
+}
+.world-section.wb:hover {
+  border-color: rgba(234, 179, 8, 0.6);
+  box-shadow: 0 0 35px rgba(234, 179, 8, 0.2);
+}
+.world-section.wb .world-badge {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.3), rgba(168, 85, 247, 0.3));
+  color: #fef08a;
+  border-color: rgba(234, 179, 8, 0.55);
+  text-shadow: 0 0 8px rgba(234, 179, 8, 0.4);
+}
 .world-title {
   margin: 0;
   font-size: 1.15rem;

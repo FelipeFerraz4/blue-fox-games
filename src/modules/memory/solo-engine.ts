@@ -4,13 +4,14 @@ import { BotDifficulty } from './probabilistic-bot';
 export type SoloGameMode = 'time-trial' | 'vs-bot';
 
 export interface StageDefinition {
-  id: string; // ex: '1.1', '1.2', '1.3'
-  world: number; // 1, 2, 3
-  stage: number; // 1, 2, 3
+  id: string; // ex: '1.1', '1.2', '1.3', '1.4' ... '5.1'
+  world: number; // 1, 2, 3, 4, 5
+  stage: number; // 1, 2, 3, 4
   title: string;
   description: string;
   mode: SoloGameMode;
   pairs: number;
+  cols?: number;
   botDifficulty?: BotDifficulty;
   targets: {
     twoStars: { maxSeconds?: number; maxMoves?: number; minLead?: number };
@@ -19,18 +20,19 @@ export interface StageDefinition {
 }
 
 export const CAMPAIGN_STAGES: StageDefinition[] = [
-  // Mundo 1: Planície Fácil
+  // Mundo 1: Iniciante (Planície dos Primeiros Passos)
   {
     id: '1.1',
     world: 1,
     stage: 1,
-    title: 'Planície dos Primeiros Passos',
+    title: 'Primeiros Passos',
     description: 'Encontre 6 pares para aquecer o raciocínio.',
     mode: 'time-trial',
     pairs: 6,
+    cols: 4,
     targets: {
-      twoStars: { maxSeconds: 50, maxMoves: 12 },
-      threeStars: { maxSeconds: 35, maxMoves: 9 },
+      twoStars: { maxSeconds: 45, maxMoves: 12 },
+      threeStars: { maxSeconds: 30, maxMoves: 9 },
     },
   },
   {
@@ -41,61 +43,153 @@ export const CAMPAIGN_STAGES: StageDefinition[] = [
     description: '8 pares com foco em precisão de movimentos.',
     mode: 'time-trial',
     pairs: 8,
+    cols: 4,
     targets: {
-      twoStars: { maxSeconds: 70, maxMoves: 16 },
-      threeStars: { maxSeconds: 50, maxMoves: 12 },
+      twoStars: { maxSeconds: 60, maxMoves: 16 },
+      threeStars: { maxSeconds: 42, maxMoves: 12 },
     },
   },
   {
     id: '1.3',
     world: 1,
     stage: 3,
+    title: 'Clareira das Descobertas',
+    description: '10 pares com mais concentração exigida.',
+    mode: 'time-trial',
+    pairs: 10,
+    cols: 5,
+    targets: {
+      twoStars: { maxSeconds: 75, maxMoves: 20 },
+      threeStars: { maxSeconds: 52, maxMoves: 15 },
+    },
+  },
+  {
+    id: '1.4',
+    world: 1,
+    stage: 4,
     title: 'Raposa Aprendiz',
-    description: 'Duelo por turnos contra a Raposa Aprendiz (6 pares).',
+    description: 'Duelo por turnos contra a Raposa Aprendiz (10 pares).',
     mode: 'vs-bot',
-    pairs: 6,
+    pairs: 10,
+    cols: 5,
     botDifficulty: 'easy',
     targets: {
-      twoStars: { minLead: 2 }, // venceu por 2 ou mais pares de vantagem
-      threeStars: { minLead: 4 }, // venceu com folga ampla
+      twoStars: { minLead: 2 },
+      threeStars: { minLead: 4 },
     },
   },
 
-  // Mundo 2: Floresta Média
+  // Mundo 2: Fácil (Floresta das Memórias)
   {
     id: '2.1',
     world: 2,
     stage: 1,
-    title: 'Labirinto das Folhas',
-    description: '10 pares com mais concentração exigida.',
+    title: 'Entrada da Floresta',
+    description: '8 pares para acelerar seu ritmo.',
     mode: 'time-trial',
-    pairs: 10,
+    pairs: 8,
+    cols: 4,
     targets: {
-      twoStars: { maxSeconds: 85, maxMoves: 20 },
-      threeStars: { maxSeconds: 65, maxMoves: 16 },
+      twoStars: { maxSeconds: 60, maxMoves: 16 },
+      threeStars: { maxSeconds: 42, maxMoves: 12 },
     },
   },
   {
     id: '2.2',
     world: 2,
     stage: 2,
-    title: 'Bosque das Sombras',
-    description: '12 pares clássicos. Agilidade e boa memória!',
+    title: 'Labirinto das Folhas',
+    description: '10 pares com foco e ritmo constante.',
     mode: 'time-trial',
-    pairs: 12,
+    pairs: 10,
+    cols: 5,
     targets: {
-      twoStars: { maxSeconds: 100, maxMoves: 24 },
-      threeStars: { maxSeconds: 75, maxMoves: 19 },
+      twoStars: { maxSeconds: 75, maxMoves: 20 },
+      threeStars: { maxSeconds: 52, maxMoves: 15 },
     },
   },
   {
     id: '2.3',
     world: 2,
     stage: 3,
-    title: 'Raposa Estrategista',
-    description: 'Duelo acirrado contra a Raposa Estrategista (12 pares).',
+    title: 'Bosque das Sombras',
+    description: '12 pares clássicos. Agilidade e boa memória!',
+    mode: 'time-trial',
+    pairs: 12,
+    cols: 6,
+    targets: {
+      twoStars: { maxSeconds: 90, maxMoves: 24 },
+      threeStars: { maxSeconds: 65, maxMoves: 18 },
+    },
+  },
+  {
+    id: '2.4',
+    world: 2,
+    stage: 4,
+    title: 'Raposa Esperta',
+    description: 'Duelo contra a Raposa Esperta (12 pares).',
     mode: 'vs-bot',
     pairs: 12,
+    cols: 6,
+    botDifficulty: 'easy',
+    targets: {
+      twoStars: { minLead: 2 },
+      threeStars: { minLead: 4 },
+    },
+  },
+
+  // Mundo 3: Médio (Montanha dos Mestres)
+  {
+    id: '3.1',
+    world: 3,
+    stage: 1,
+    title: 'Subida da Montanha',
+    description: '10 pares no ar rarefeito das alturas.',
+    mode: 'time-trial',
+    pairs: 10,
+    cols: 5,
+    targets: {
+      twoStars: { maxSeconds: 75, maxMoves: 20 },
+      threeStars: { maxSeconds: 52, maxMoves: 15 },
+    },
+  },
+  {
+    id: '3.2',
+    world: 3,
+    stage: 2,
+    title: 'Pico Nevado',
+    description: '12 pares com foco sob pressão.',
+    mode: 'time-trial',
+    pairs: 12,
+    cols: 6,
+    targets: {
+      twoStars: { maxSeconds: 90, maxMoves: 24 },
+      threeStars: { maxSeconds: 65, maxMoves: 18 },
+    },
+  },
+  {
+    id: '3.3',
+    world: 3,
+    stage: 3,
+    title: 'Cume dos Ventos',
+    description: '14 pares em um tabuleiro amplo.',
+    mode: 'time-trial',
+    pairs: 14,
+    cols: 7,
+    targets: {
+      twoStars: { maxSeconds: 110, maxMoves: 28 },
+      threeStars: { maxSeconds: 80, maxMoves: 21 },
+    },
+  },
+  {
+    id: '3.4',
+    world: 3,
+    stage: 4,
+    title: 'Raposa Estrategista',
+    description: 'Duelo tático contra a temida Raposa Estrategista (14 pares).',
+    mode: 'vs-bot',
+    pairs: 14,
+    cols: 7,
     botDifficulty: 'medium',
     targets: {
       twoStars: { minLead: 2 },
@@ -103,41 +197,75 @@ export const CAMPAIGN_STAGES: StageDefinition[] = [
     },
   },
 
-  // Mundo 3: Montanha Difícil
+  // Mundo 4: Difícil (Pico das Sombras)
   {
-    id: '3.1',
-    world: 3,
+    id: '4.1',
+    world: 4,
     stage: 1,
-    title: 'Pico Nevado',
-    description: '14 pares em um tabuleiro amplo.',
+    title: 'Desfiladeiro Obscuro',
+    description: '12 pares exigindo memória impecável.',
+    mode: 'time-trial',
+    pairs: 12,
+    cols: 6,
+    targets: {
+      twoStars: { maxSeconds: 90, maxMoves: 24 },
+      threeStars: { maxSeconds: 65, maxMoves: 18 },
+    },
+  },
+  {
+    id: '4.2',
+    world: 4,
+    stage: 2,
+    title: 'Portal da Fortaleza',
+    description: '14 pares com alto nível de dispersão.',
     mode: 'time-trial',
     pairs: 14,
+    cols: 7,
     targets: {
-      twoStars: { maxSeconds: 125, maxMoves: 30 },
-      threeStars: { maxSeconds: 95, maxMoves: 23 },
+      twoStars: { maxSeconds: 110, maxMoves: 28 },
+      threeStars: { maxSeconds: 80, maxMoves: 21 },
     },
   },
   {
-    id: '3.2',
-    world: 3,
-    stage: 2,
-    title: 'Desfiladeiro dos Mestres',
-    description: '16 pares de alta complexidade.',
+    id: '4.3',
+    world: 4,
+    stage: 3,
+    title: 'Salão dos Guardiões',
+    description: '16 pares de alta complexidade e raciocínio veloz.',
     mode: 'time-trial',
     pairs: 16,
+    cols: 8,
     targets: {
-      twoStars: { maxSeconds: 145, maxMoves: 34 },
-      threeStars: { maxSeconds: 110, maxMoves: 26 },
+      twoStars: { maxSeconds: 130, maxMoves: 32 },
+      threeStars: { maxSeconds: 95, maxMoves: 24 },
     },
   },
   {
-    id: '3.3',
-    world: 3,
-    stage: 3,
+    id: '4.4',
+    world: 4,
+    stage: 4,
     title: 'Raposa Soberana',
-    description: 'O grande teste final: Duelo contra a Raposa Mestre (18 pares)!',
+    description: 'Duelo supremo contra a Raposa Soberana (16 pares)!',
+    mode: 'vs-bot',
+    pairs: 16,
+    cols: 8,
+    botDifficulty: 'hard',
+    targets: {
+      twoStars: { minLead: 2 },
+      threeStars: { minLead: 4 },
+    },
+  },
+
+  // Mundo 5: Bônus (O Covil Ancestral)
+  {
+    id: '5.1',
+    world: 5,
+    stage: 1,
+    title: 'Raposa Ancestral (Bônus)',
+    description: 'O desafio supremo de memória: 18 pares (36 cartas) contra o bot definitivo!',
     mode: 'vs-bot',
     pairs: 18,
+    cols: 9,
     botDifficulty: 'hard',
     targets: {
       twoStars: { minLead: 2 },

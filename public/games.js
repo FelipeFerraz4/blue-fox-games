@@ -17,9 +17,9 @@ window.BF_GAMES = [
     players: '1 ou 2 jogadores',
     duration: '2–8 min',
     description:
-      'Encontre os pares na Jornada de 9 fases, enfrente o Bot da Raposa em duelos táticos ou crie uma sala para desafiar alguém online.',
+      'Encontre os pares na Jornada de 17 fases, enfrente o Bot da Raposa em duelos táticos ou crie uma sala para desafiar alguém online.',
     rules: [
-      'Modo Campanha: 3 Mundos e 9 Fases com avaliação em 3 estrelas (★★★).',
+      'Modo Campanha: 4 Mundos e 17 Fases (com Chefão Bônus) e avaliação em 3 estrelas (★★★).',
       'Modo Livre: Escolha entre 4 níveis contra o relógio ou em Duelo contra a Raposa.',
       '1x1 Online: Crie uma sala, compartilhe o link e jogue com alguém em tempo real.',
       'Na sua vez, vire duas cartas. Acertou: ganha o ponto e joga de novo.',
