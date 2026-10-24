@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Genius · Blue Fox Games</title>
+  <meta name="description" content="Jogo Genius (Simon) de memória das cores e sons. Jogue pelo mouse ou teclado com teclas customizáveis." />
+  <link rel="icon" href="/Favicon_logo5.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/site.css" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/genius.css" />
+</head>
+<body class="site">
+  <div id="site-header" data-active="games"></div>
+
+  <main class="genius-page">
+    <!-- Barra superior de status e opções -->
+    <div class="genius-header-bar">
+      <a href="/jogos" class="btn-back-link">← Voltar aos Jogos</a>
+      <div class="genius-top-actions">
+        <div class="highscore-badge">
+          <span>🏆</span> Recorde: <strong id="val-highscore">0</strong>
+        </div>
+        <button type="button" class="btn-icon-setting" id="btn-open-keymap" title="Configurar teclas do teclado">
+          <span>⚙️</span> <span id="label-active-preset">Teclas: FGHJ</span>
+        </button>
+        <button type="button" class="btn-icon-setting" id="btn-toggle-sound" title="Alternar som">
+          <span id="icon-sound">🔊</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Aparelho Genius Circular -->
+    <div class="genius-console-wrapper">
+      <div class="genius-device" id="genius-device">
+        <!-- 🟢 Verde (Noroeste) -->
+        <button type="button" class="genius-btn btn-green" id="btn-color-green" data-color="green" aria-label="Botão Verde" disabled>
+          <span class="key-hint" id="hint-green">F</span>
+        </button>
+
+        <!-- 🔴 Vermelho (Nordeste) -->
+        <button type="button" class="genius-btn btn-red" id="btn-color-red" data-color="red" aria-label="Botão Vermelho" disabled>
+          <span class="key-hint" id="hint-red">G</span>
+        </button>
+
+        <!-- 🟡 Amarelo (Sudoeste) -->
+        <button type="button" class="genius-btn btn-yellow" id="btn-color-yellow" data-color="yellow" aria-label="Botão Amarelo" disabled>
+          <span class="key-hint" id="hint-yellow">H</span>
+        </button>
+
+        <!-- 🔵 Azul (Sudeste) -->
+        <button type="button" class="genius-btn btn-blue" id="btn-color-blue" data-color="blue" aria-label="Botão Azul" disabled>
+          <span class="key-hint" id="hint-blue">J</span>
+        </button>
+
+        <!-- Núcleo Central -->
+        <div class="center-hub">
+          <span class="hub-brand">Blue Fox</span>
+          <span class="hub-title">GENIUS</span>
+          <div class="hub-display">
+            <span class="hub-score" id="val-round">--</span>
+          </div>
+          <button type="button" class="btn btn-primary hub-start-btn" id="btn-start-game">
+            Iniciar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status / Mensagem da rodada -->
+    <div class="genius-status-card" id="genius-status-card">
+      <span class="status-indicator-dot" id="status-dot"></span>
+      <span id="genius-status-text">Pressione Iniciar para começar a partida</span>
+    </div>
+
+    <!-- Instruções e ajuda -->
+    <div class="genius-help-bar">
+      Memorize a sequência sonora e luminosa e repita sem errar. Jogue clicando nos botões ou usando as teclas <strong>F, G, H, J</strong> (ou configure as suas preferidas em ⚙️ Teclas).
+    </div>
+  </main>
+
+  <!-- MODAL: Configuração de Teclas -->
+  <div class="overlay" id="modal-keymap" hidden>
+    <div class="result-card keymap-modal">
+      <h2>Configuração de Teclas</h2>
+      <p>Escolha um preset rápido ou clique na cor para personalizar a tecla.</p>
+
+      <!-- Presets Rápidos -->
+      <div class="keymap-presets-row">
+        <button type="button" class="btn-preset active" data-preset="fghj">
+          <strong>F - G - H - J</strong>
+          <span>Padrão ergonômico</span>
+        </button>
+        <button type="button" class="btn-preset" data-preset="qwas">
+          <strong>Q - W - A - S</strong>
+          <span>Mão esquerda 2×2</span>
+        </button>
+        <button type="button" class="btn-preset" data-preset="arrows">
+          <strong>← ↑ ↓ →</strong>
+          <span>Setas direcionais</span>
+        </button>
+        <button type="button" class="btn-preset" data-preset="numbers">
+          <strong>1 - 2 - 3 - 4</strong>
+          <span>Teclado numérico</span>
+        </button>
+      </div>
+
+      <!-- Mapeamento Individual por Cor -->
+      <div style="font-size:0.85rem; font-weight:700; color:var(--text-muted); text-align:left; margin-top:14px;">
+        Mapeamento Individual (clique para alterar):
+      </div>
+      <div class="keymap-color-grid">
+        <div class="key-bind-slot" data-bind-color="green">
+          <span><span class="color-dot green"></span>Verde</span>
+          <span class="key-tag" id="bind-key-green">F</span>
+        </div>
+        <div class="key-bind-slot" data-bind-color="red">
+          <span><span class="color-dot red"></span>Vermelho</span>
+          <span class="key-tag" id="bind-key-red">G</span>
+        </div>
+        <div class="key-bind-slot" data-bind-color="yellow">
+          <span><span class="color-dot yellow"></span>Amarelo</span>
+          <span class="key-tag" id="bind-key-yellow">H</span>
+        </div>
+        <div class="key-bind-slot" data-bind-color="blue">
+          <span><span class="color-dot blue"></span>Azul</span>
+          <span class="key-tag" id="bind-key-blue">J</span>
+        </div>
+      </div>
+
+      <div class="result-actions" style="margin-top: 20px;">
+        <button type="button" class="btn btn-primary" id="btn-close-keymap">Salvar e Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Fim de Jogo (Game Over) -->
+  <div class="overlay" id="modal-gameover" hidden>
+    <div class="result-card">
+      <div class="result-emoji" id="go-emoji">⚡</div>
+      <h2 id="go-title">Fim de Jogo!</h2>
+      <div class="genius-result-badge regular" id="go-tier-badge">Boa Memória</div>
+      <div class="genius-result-score" id="go-score">0 Acertos</div>
+      <p id="go-message">Boa tentativa! Continue praticando para afiar a sua memória.</p>
+      <div id="go-record-banner" style="margin-bottom: 16px; font-weight: 700; color: #fcd34d;" hidden>
+        ⭐ NOVO RECORDE PESSOAL!
+      </div>
+      <div class="result-actions">
+        <button type="button" class="btn btn-primary" id="btn-restart-game">Jogar Novamente</button>
+        <a href="/jogos" class="btn btn-ghost">Voltar aos Jogos</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="site-footer"></div>
+
+  <script src="/site.js"></script>
+  <script src="/genius-engine.js"></script>
+  <script src="/genius.js"></script>
+</body>
+</html>
