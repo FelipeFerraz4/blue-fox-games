@@ -27,7 +27,7 @@ window.BF_GAMES = [
   },
   {
     id: 'pulse',
-    title: 'Fox Pulse (Ritmo & Reflexo)',
+    title: 'Fox Pulse',
     emoji: '⚡',
     cover: ['⚡', '🟢', '🔴', '🟡', '🔵', '🦊'],
     href: '/pulse',

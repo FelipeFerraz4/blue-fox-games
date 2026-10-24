@@ -36,80 +36,90 @@
     <!-- Console Sônico Fox Pulse (Deck de Pads) -->
     <div class="pulse-console-wrapper">
       <div class="pulse-console">
-        <!-- Display Digital Superior -->
-        <div class="pulse-display-panel">
-          <div class="display-top-row">
-            <div class="console-brand-badge">
-              <span>🦊</span> FOX <span>PULSE</span>
+        <!-- Coluna de Controle & HUD (Esquerda no Desktop) -->
+        <div class="pulse-sidebar-hud">
+          <!-- Display Digital Superior -->
+          <div class="pulse-display-panel">
+            <div class="display-top-row">
+              <div class="console-brand-badge">
+                <span>🦊</span> FOX <span>PULSE</span>
+              </div>
+              <!-- Equalizador Visualizer -->
+              <div class="sound-equalizer" id="sound-equalizer">
+                <span class="eq-bar"></span>
+                <span class="eq-bar"></span>
+                <span class="eq-bar"></span>
+                <span class="eq-bar"></span>
+                <span class="eq-bar"></span>
+              </div>
             </div>
-            <!-- Equalizador Visualizer -->
-            <div class="sound-equalizer" id="sound-equalizer">
-              <span class="eq-bar"></span>
-              <span class="eq-bar"></span>
-              <span class="eq-bar"></span>
-              <span class="eq-bar"></span>
-              <span class="eq-bar"></span>
+
+            <div class="display-main-row">
+              <div class="digital-round-box">
+                <span class="digital-round-label">Sequência / Pulso</span>
+                <span class="digital-round-value" id="val-round">--</span>
+              </div>
+              <button type="button" class="btn-start-pulse" id="btn-start-game">
+                ⚡ Iniciar Pulso
+              </button>
             </div>
           </div>
 
-          <div class="display-main-row">
-            <div class="digital-round-box">
-              <span class="digital-round-label">Sequência / Pulso</span>
-              <span class="digital-round-value" id="val-round">--</span>
-            </div>
-            <button type="button" class="btn-start-pulse" id="btn-start-game">
-              ⚡ Iniciar Pulso
+          <!-- Status / Mensagem da rodada -->
+          <div class="pulse-status-card" id="pulse-status-card">
+            <span class="status-indicator-dot" id="status-dot"></span>
+            <span id="pulse-status-text">Pressione Iniciar Pulso para começar a sequência</span>
+          </div>
+
+          <!-- Dica rápida na barra lateral -->
+          <div class="pulse-hud-tip">
+            <span>💡 Toque nos pads ou use as teclas <strong>F, G, H, J</strong></span>
+          </div>
+        </div>
+
+        <!-- Coluna de Pads Táteis (Direita no Desktop) -->
+        <div class="pulse-pads-container">
+          <div class="pulse-pads-grid">
+            <!-- 1. Pad Esmeralda (Noroeste) -->
+            <button type="button" class="pulse-pad pad-green" id="btn-color-green" data-color="green" aria-label="Pad Esmeralda" disabled>
+              <span class="pad-keycap" id="hint-green">F</span>
+              <svg class="pad-wave-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                <path d="M2 12h2l3-7 4 14 4-10 3 5h4" />
+              </svg>
+              <span style="font-weight: 700; font-size: 0.95rem;">Esmeralda</span>
+              <span class="pad-freq-tag">Frequência Alta</span>
+            </button>
+
+            <!-- 2. Pad Rubi (Nordeste) -->
+            <button type="button" class="pulse-pad pad-red" id="btn-color-red" data-color="red" aria-label="Pad Rubi" disabled>
+              <span class="pad-keycap" id="hint-red">G</span>
+              <svg class="pad-wave-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                <path d="M2 12h3l3-5 3 10 3-8 3 5h4" />
+              </svg>
+              <span style="font-weight: 700; font-size: 0.95rem;">Rubi</span>
+              <span class="pad-freq-tag">Frequência Média</span>
+            </button>
+
+            <!-- 3. Pad Âmbar (Sudoeste) -->
+            <button type="button" class="pulse-pad pad-yellow" id="btn-color-yellow" data-color="yellow" aria-label="Pad Âmbar" disabled>
+              <span class="pad-keycap" id="hint-yellow">H</span>
+              <svg class="pad-wave-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                <path d="M2 12h4l2-4 4 8 2-6 2 4h4" />
+              </svg>
+              <span style="font-weight: 700; font-size: 0.95rem;">Âmbar</span>
+              <span class="pad-freq-tag">Frequência Baixa</span>
+            </button>
+
+            <!-- 4. Pad Ciano (Sudeste) -->
+            <button type="button" class="pulse-pad pad-blue" id="btn-color-blue" data-color="blue" aria-label="Pad Ciano" disabled>
+              <span class="pad-keycap" id="hint-blue">J</span>
+              <svg class="pad-wave-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                <path d="M2 12h2l4-8 4 16 3-10 3 4h4" />
+              </svg>
+              <span style="font-weight: 700; font-size: 0.95rem;">Ciano</span>
+              <span class="pad-freq-tag">Sub-Grave Fox</span>
             </button>
           </div>
-        </div>
-
-        <!-- Grid 2x2 de Beat Pads Táteis -->
-        <div class="pulse-pads-grid">
-          <!-- 1. Pad Esmeralda (Noroeste) -->
-          <button type="button" class="pulse-pad pad-green" id="btn-color-green" data-color="green" aria-label="Pad Esmeralda" disabled>
-            <span class="pad-keycap" id="hint-green">F</span>
-            <svg class="pad-wave-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-              <path d="M2 12h2l3-7 4 14 4-10 3 5h4" />
-            </svg>
-            <span style="font-weight: 700; font-size: 0.95rem;">Esmeralda</span>
-            <span class="pad-freq-tag">Frequência Alta</span>
-          </button>
-
-          <!-- 2. Pad Rubi (Nordeste) -->
-          <button type="button" class="pulse-pad pad-red" id="btn-color-red" data-color="red" aria-label="Pad Rubi" disabled>
-            <span class="pad-keycap" id="hint-red">G</span>
-            <svg class="pad-wave-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-              <path d="M2 12h3l3-5 3 10 3-8 3 5h4" />
-            </svg>
-            <span style="font-weight: 700; font-size: 0.95rem;">Rubi</span>
-            <span class="pad-freq-tag">Frequência Média</span>
-          </button>
-
-          <!-- 3. Pad Âmbar (Sudoeste) -->
-          <button type="button" class="pulse-pad pad-yellow" id="btn-color-yellow" data-color="yellow" aria-label="Pad Âmbar" disabled>
-            <span class="pad-keycap" id="hint-yellow">H</span>
-            <svg class="pad-wave-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-              <path d="M2 12h4l2-4 4 8 2-6 2 4h4" />
-            </svg>
-            <span style="font-weight: 700; font-size: 0.95rem;">Âmbar</span>
-            <span class="pad-freq-tag">Frequência Baixa</span>
-          </button>
-
-          <!-- 4. Pad Ciano (Sudeste) -->
-          <button type="button" class="pulse-pad pad-blue" id="btn-color-blue" data-color="blue" aria-label="Pad Ciano" disabled>
-            <span class="pad-keycap" id="hint-blue">J</span>
-            <svg class="pad-wave-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-              <path d="M2 12h2l4-8 4 16 3-10 3 4h4" />
-            </svg>
-            <span style="font-weight: 700; font-size: 0.95rem;">Ciano</span>
-            <span class="pad-freq-tag">Sub-Grave Fox</span>
-          </button>
-        </div>
-
-        <!-- Status / Mensagem da rodada -->
-        <div class="pulse-status-card" id="pulse-status-card">
-          <span class="status-indicator-dot" id="status-dot"></span>
-          <span id="pulse-status-text">Pressione Iniciar Pulso para começar a sequência</span>
         </div>
       </div>
     </div>

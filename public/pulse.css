@@ -567,6 +567,19 @@
   border: 1px solid rgba(56, 182, 255, 0.3);
 }
 
+/* Sidebar HUD e container de pads */
+.pulse-sidebar-hud {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pulse-pads-container {
+  width: 100%;
+}
+.pulse-hud-tip {
+  display: none;
+}
+
 @media (max-width: 480px) {
   .pulse-console { padding: 16px; border-radius: 22px; }
   .pulse-pads-grid { gap: 10px; }
@@ -575,3 +588,114 @@
   .digital-round-box { text-align: center; }
   .btn-start-pulse { justify-content: center; }
 }
+
+/* ============================================================
+   MODO DESKTOP: Enquadramento 100% no Viewport sem Rolagem
+   ============================================================ */
+@media (min-width: 768px) {
+  /* Evita barra de rolagem vertical no desktop */
+  body.site:has(.pulse-page) {
+    overflow-y: hidden;
+  }
+
+  body.site:has(.pulse-page) .site-header-inner {
+    padding: 0.5rem 1.5rem;
+  }
+
+  .pulse-page {
+    max-width: 1100px;
+    height: calc(100dvh - 58px);
+    max-height: calc(100dvh - 58px);
+    padding: 6px 24px 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .pulse-header-bar {
+    margin-bottom: 2px;
+    padding: 0 4px;
+  }
+
+  .pulse-console-wrapper {
+    flex: 1;
+    min-height: 0;
+    margin: 2px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Deck de Cockpit Widescreen no Desktop: 2 Colunas (HUD à esquerda, Pads à direita) */
+  .pulse-console {
+    max-width: 960px;
+    width: 100%;
+    max-height: calc(100dvh - 130px);
+    padding: 20px 26px;
+    display: grid;
+    grid-template-columns: 310px 1fr;
+    gap: 24px;
+    align-items: center;
+    border-radius: 26px;
+  }
+
+  .pulse-sidebar-hud {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .pulse-display-panel {
+    margin-bottom: 0;
+    padding: 16px 18px;
+  }
+
+  .pulse-hud-tip {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    background: rgba(11, 19, 43, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 8px 12px;
+    text-align: left;
+  }
+  .pulse-hud-tip strong {
+    color: #fff;
+  }
+
+  .pulse-pads-container {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pulse-pads-grid {
+    width: 100%;
+    max-width: 480px;
+    max-height: calc(100dvh - 180px);
+    margin-bottom: 0;
+    gap: 14px;
+  }
+
+  .pulse-pad {
+    aspect-ratio: 1.15 / 1;
+    padding: 14px;
+  }
+
+  .pad-wave-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .pulse-help-bar {
+    margin-top: 4px;
+    font-size: 0.8rem;
+    line-height: 1.35;
+  }
+}
+
