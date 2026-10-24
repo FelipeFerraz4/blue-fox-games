@@ -219,6 +219,9 @@ input:focus, select:focus { outline: none; border-color: var(--brand-light); box
 .turn.mine { color: #fff; }
 
 /* ---------- Tabuleiro ---------- */
+.board-wrapper {
+  width: 100%;
+}
 .board {
   display: grid;
   grid-template-columns: repeat(var(--cols, 4), 1fr);
@@ -349,3 +352,544 @@ input:focus, select:focus { outline: none; border-color: var(--brand-light); box
   .player .score { font-size: 1.6rem; }
   .board[data-cards='24'] { --cols: 4 !important; }
 }
+
+/* ============================================================
+   MODO SOLO & CAMPANHA (Design System Blue Fox)
+   ============================================================ */
+
+/* ---------- Abas Principais de Modo ---------- */
+.mode-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 auto 24px;
+  max-width: 500px;
+  background: rgba(11, 19, 43, 0.7);
+  padding: 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(56, 182, 255, 0.16);
+  backdrop-filter: blur(8px);
+}
+.mode-tab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.mode-tab:hover {
+  color: #fff;
+}
+.mode-tab.active {
+  background: var(--gradient);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0, 74, 173, 0.4);
+}
+.mode-tab.active-games {
+  background: var(--gradient-games);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4);
+}
+
+/* ---------- Sub-abas do Modo Solo ---------- */
+.solo-subtabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 12px;
+}
+.solo-subtab {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 8px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.solo-subtab:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+.solo-subtab.active {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: var(--brand-accent);
+  color: #fff;
+}
+
+/* ---------- Jornada das Fases (Campanha) ---------- */
+.campaign-container {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.world-section {
+  background: rgba(11, 19, 43, 0.5);
+  border: 1px solid rgba(56, 182, 255, 0.12);
+  border-radius: 20px;
+  padding: 20px;
+  transition: border-color 0.25s;
+}
+.world-section:hover {
+  border-color: rgba(139, 92, 246, 0.3);
+}
+.world-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.world-badge {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(56, 182, 255, 0.15);
+  color: var(--brand-light);
+  border: 1px solid rgba(56, 182, 255, 0.3);
+}
+.world-section.w2 .world-badge {
+  background: rgba(139, 92, 246, 0.18);
+  color: #c4b5fd;
+  border-color: rgba(139, 92, 246, 0.35);
+}
+.world-section.w3 .world-badge {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fcd34d;
+  border-color: rgba(245, 158, 11, 0.35);
+}
+.world-title {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #fff;
+}
+.stages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+.stage-card {
+  background: rgba(28, 37, 65, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+}
+.stage-card:not(.locked):hover {
+  transform: translateY(-2px);
+  border-color: var(--brand-accent);
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.25);
+}
+.stage-card.locked {
+  opacity: 0.45;
+  filter: grayscale(0.5);
+  cursor: not-allowed;
+}
+.stage-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.stage-number {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--brand-light);
+}
+.stage-card.is-boss .stage-number {
+  color: #fcd34d;
+}
+.stage-stars {
+  display: flex;
+  gap: 2px;
+  font-size: 0.9rem;
+}
+.stage-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  margin: 0;
+  color: #fff;
+}
+.stage-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.35;
+  min-height: 34px;
+}
+.stage-action {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.stage-mode-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.btn-stage {
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  min-height: 32px;
+}
+
+/* ---------- Partida Livre (4 Níveis) ---------- */
+.free-play-box {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.level-picker-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+.free-levels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+}
+.level-card {
+  background: rgba(11, 19, 43, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 14px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.level-card:hover {
+  background: rgba(28, 37, 65, 0.8);
+  border-color: rgba(56, 182, 255, 0.4);
+}
+.level-card.active {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: var(--brand-accent);
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.3);
+}
+.level-card .lvl-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: #fff;
+}
+.level-card .lvl-meta {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.mode-type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.mode-type-card {
+  background: rgba(11, 19, 43, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.25s;
+}
+.mode-type-card:hover {
+  background: rgba(28, 37, 65, 0.8);
+  border-color: rgba(56, 182, 255, 0.3);
+}
+.mode-type-card.active {
+  background: rgba(0, 74, 173, 0.2);
+  border-color: var(--brand-light);
+  box-shadow: 0 0 18px rgba(56, 182, 255, 0.25);
+}
+.mode-type-icon {
+  font-size: 1.8rem;
+}
+.mode-type-info h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #fff;
+}
+.mode-type-info p {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.free-record-box {
+  background: rgba(11, 19, 43, 0.4);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.free-record-box strong {
+  color: var(--brand-light);
+}
+
+/* ---------- HUD Solo na Partida ---------- */
+.solo-scoreboard {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 12px 0 20px;
+}
+.solo-stat-card {
+  background: rgba(28, 37, 65, 0.8);
+  border: 1px solid rgba(56, 182, 255, 0.14);
+  border-radius: 14px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.solo-stat-value {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 1.35rem;
+  color: #fff;
+  line-height: 1.1;
+}
+.solo-stat-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+.solo-stat-card.highlight .solo-stat-value {
+  color: var(--brand-light);
+}
+
+/* ---------- Estrelas de Resultado ---------- */
+.stars-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  font-size: 2.2rem;
+  margin: 12px 0;
+}
+.stars-row span {
+  animation: pop 0.4s ease backwards;
+}
+.stars-row span:nth-child(1) { animation-delay: 0.1s; }
+.stars-row span:nth-child(2) { animation-delay: 0.25s; }
+.stars-row span:nth-child(3) { animation-delay: 0.4s; }
+
+@media (max-width: 640px) {
+  .mode-type-grid { grid-template-columns: 1fr; }
+  .free-levels-grid { grid-template-columns: 1fr 1fr; }
+  .solo-scoreboard { grid-template-columns: 1fr 1fr; }
+}
+
+/* ============================================================
+   MODO DESKTOP: Cartas na horizontal & Tabuleiro que cabe 100% na tela
+   ============================================================ */
+@media (min-width: 768px) {
+  /* Evita barra de rolagem indesejada na tela do jogo */
+  body.in-game,
+  body:has(#screen-game:not([hidden])) {
+    overflow-y: hidden;
+  }
+
+  body.in-game .site-header-inner,
+  body:has(#screen-game:not([hidden])) .site-header-inner {
+    padding: 0.5rem 1.5rem;
+  }
+
+  body.in-game main,
+  body:has(#screen-game:not([hidden])) main {
+    max-width: 1400px;
+    height: calc(100dvh - 58px);
+    max-height: calc(100dvh - 58px);
+    padding: 4px clamp(16px, 2.5vw, 32px) 8px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  body.in-game .status-row,
+  body:has(#screen-game:not([hidden])) .status-row {
+    padding-top: 2px;
+    margin-bottom: 2px;
+  }
+
+  body.in-game #screen-game,
+  body:has(#screen-game:not([hidden])) #screen-game {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  /* Placares otimizados para ocupar pouca altura vertical */
+  body.in-game .solo-scoreboard,
+  body:has(#screen-game:not([hidden])) .solo-scoreboard {
+    margin: 2px auto 8px;
+    max-width: 720px;
+    gap: 8px;
+  }
+  body.in-game .solo-stat-card,
+  body:has(#screen-game:not([hidden])) .solo-stat-card {
+    padding: 6px 12px;
+    border-radius: 12px;
+  }
+  body.in-game .solo-stat-value,
+  body:has(#screen-game:not([hidden])) .solo-stat-value {
+    font-size: 1.2rem;
+  }
+
+  body.in-game .scoreboard,
+  body:has(#screen-game:not([hidden])) .scoreboard {
+    margin: 2px auto 8px;
+    max-width: 720px;
+    gap: 10px;
+  }
+  body.in-game .player,
+  body:has(#screen-game:not([hidden])) .player {
+    padding: 6px 14px;
+  }
+  body.in-game .player .score,
+  body:has(#screen-game:not([hidden])) .player .score {
+    font-size: 1.6rem;
+  }
+
+  /* Wrapper flexível centralizado para o tabuleiro */
+  .board-wrapper {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 2px 0;
+    overflow: hidden;
+  }
+
+  /* Tabuleiro inteligente em desktop:
+     - Aspect-ratio proporcional ao número de colunas/linhas com cartas horizontais
+     - max-height: 100% do espaço vertical disponível
+     - Não causa rolagem na tela */
+  .board {
+    height: 100%;
+    max-height: 100%;
+    max-width: 100%;
+    width: auto;
+    aspect-ratio: var(--board-aspect, 16 / 9);
+    grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr));
+    grid-template-rows: repeat(var(--rows, 4), minmax(0, 1fr));
+    gap: clamp(6px, 1.2vh, 12px);
+    align-content: center;
+    justify-content: center;
+    margin: auto;
+  }
+
+  /* Cartas em orientação HORIZONTAL (4:3) no desktop com imagens bem visíveis */
+  .card {
+    aspect-ratio: 4 / 3;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+  }
+  .card .face {
+    border-radius: 12px;
+  }
+  .card .back {
+    background:
+      url('/Favicon_logo5.png') center / auto 80% no-repeat,
+      var(--gradient-games);
+  }
+  .card .front {
+    font-size: clamp(2.2rem, min(7.5vh, 5vw), 3.8rem);
+    line-height: 1;
+  }
+
+  /* Ajustes específicos de colunas, linhas e proporção por quantidade de cartas */
+  .board[data-cards='12'] {
+    --cols: 4;
+    --rows: 3;
+    --board-aspect: 16 / 9;
+    max-width: min(100%, 860px);
+  }
+  .board[data-cards='16'] {
+    --cols: 4;
+    --rows: 4;
+    --board-aspect: 4 / 3;
+    max-width: min(100%, 920px);
+  }
+  .board[data-cards='20'] {
+    --cols: 5;
+    --rows: 4;
+    --board-aspect: 5 / 3;
+    max-width: min(100%, 1080px);
+  }
+  .board[data-cards='24'] {
+    --cols: 6;
+    --rows: 4;
+    --board-aspect: 2 / 1;
+    max-width: min(100%, 1240px);
+  }
+  .board[data-cards='28'] {
+    --cols: 7;
+    --rows: 4;
+    --board-aspect: 7 / 3;
+    max-width: min(100%, 1320px);
+  }
+  .board[data-cards='32'] {
+    --cols: 8;
+    --rows: 4;
+    --board-aspect: 8 / 3;
+    max-width: min(100%, 1360px);
+  }
+  .board[data-cards='36'] {
+    --cols: 9;
+    --rows: 4;
+    --board-aspect: 3 / 1;
+    max-width: min(100%, 1400px);
+  }
+
+  body.in-game .game-footer,
+  body:has(#screen-game:not([hidden])) .game-footer {
+    margin-top: 6px;
+    font-size: 0.85rem;
+  }
+}
+
+
