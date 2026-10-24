@@ -34,14 +34,25 @@
   renderCampaignMap();
   updateFreeRecordDisplay();
 
-  // Se veio código na URL (?sala=ABCD), foca no multiplayer online
+  // Se veio código na URL (?sala=ABCD ou ?modo=online|bot|livre)
   const urlCode = codeFromUrl();
-  if (urlCode) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const requestedMode = urlParams.get('modo');
+
+  if (urlCode || requestedMode === 'online') {
     switchModeTab('online');
-    $('code').value = urlCode;
-    $('form-join').querySelector('h2').textContent = 'Você foi convidado!';
+    if (urlCode) {
+      $('code').value = urlCode;
+      $('form-join').querySelector('h2').textContent = 'Você foi convidado!';
+    }
   } else {
     switchModeTab('solo');
+    if (requestedMode === 'bot') {
+      $('subtab-freeplay').click();
+      $('mode-opt-bot').click();
+    } else if (requestedMode === 'livre') {
+      $('subtab-freeplay').click();
+    }
   }
 
   $('name').value = savedName();

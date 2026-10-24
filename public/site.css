@@ -449,6 +449,28 @@ body.site main { flex: 1; }
 .chip.amber { background: rgba(245, 158, 11, 0.12); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); }
 .chip.purple { background: rgba(139, 92, 246, 0.14); color: var(--accent-soft); border-color: var(--border-accent); }
 
+.game-card-features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+  padding: 0.65rem 0.9rem;
+  background: rgba(11, 19, 43, 0.45);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 14px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+.game-card-features span {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.game-card-features span strong {
+  color: #fff;
+  font-weight: 600;
+}
+
 /* Recursos */
 .features-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
 .feature {
