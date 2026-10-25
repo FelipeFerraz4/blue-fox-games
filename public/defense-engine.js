@@ -476,8 +476,8 @@
     }
 
     // -------------------------------------------------------------
-    // Desenho do Astro / Planeta de Destino no Horizonte
-    // Cria a ilusão de aproximação real durante a fase!
+    // Desenho Realista e Detalhado dos Planetas e Astros do Sistema Solar
+    // Cria a ilusão de aproximação real com fidelidade visual autêntica
     // -------------------------------------------------------------
     drawCelestialDestination() {
       if (!this.currentStage) return;
@@ -486,74 +486,657 @@
         ? Math.min(1, this.stageKillCount / this.stageTotalAliens)
         : 0;
 
-      const baseRadius = 45;
-      const targetRadius = 140;
-      const currentRadius = baseRadius + (targetRadius - baseRadius) * progress;
+      // O planeta começa visível e cresce suavemente conforme a frota é destruída
+      const baseRadius = 65;
+      const targetRadius = 145;
+      const r = baseRadius + (targetRadius - baseRadius) * progress;
 
+      // Posição no topo da tela para servir de horizonte cósmico
       const px = this.V_WIDTH / 2;
-      const py = 150 + progress * 20;
+      const py = 125 + progress * 15;
 
-      const theme = this.currentStage.visualTheme || this.currentStage.theme || {};
-      const primary = theme.planetGlow || theme.planetPrimary || '#38b6ff';
-      const secondary = theme.skyColor || theme.planetSecondary || '#1e3a8a';
-      const atmosphere = theme.nebulaAccent || theme.atmosphereGlow || 'rgba(56, 182, 255, 0.4)';
+      const key = this.currentStage.key;
 
-      this.ctx.save();
+      if (key === 'terra') {
+        this.drawEarth(px, py, r);
+      } else if (key === 'venus') {
+        this.drawVenus(px, py, r);
+      } else if (key === 'mercurio') {
+        this.drawMercury(px, py, r);
+      } else if (key === 'sol') {
+        this.drawSun(px, py, r);
+      } else if (key === 'marte') {
+        this.drawMars(px, py, r);
+      } else if (key === 'cinturao-asteroides') {
+        this.drawAsteroidBelt(px, py, r);
+      } else if (key === 'jupiter') {
+        this.drawJupiter(px, py, r);
+      } else if (key === 'saturno') {
+        this.drawSaturn(px, py, r);
+      } else if (key === 'urano') {
+        this.drawUranus(px, py, r);
+      } else if (key === 'netuno') {
+        this.drawNeptune(px, py, r);
+      } else if (key === 'cinturao-kuiper') {
+        this.drawKuiperBelt(px, py, r);
+      } else {
+        this.drawGenericPlanet(px, py, r);
+      }
+    }
 
-      // Brilho atmosférico exterior
-      const glow = this.ctx.createRadialGradient(px, py, currentRadius * 0.8, px, py, currentRadius * 1.5);
-      glow.addColorStop(0, atmosphere);
-      glow.addColorStop(1, 'transparent');
-      this.ctx.fillStyle = glow;
-      this.ctx.beginPath();
-      this.ctx.arc(px, py, currentRadius * 1.5, 0, Math.PI * 2);
-      this.ctx.fill();
+    drawEarth(px, py, r) {
+      const ctx = this.ctx;
+      ctx.save();
 
-      // Se for o Sol (Fase 4), adicione labaredas e pulso térmico
-      if (this.currentStage.key === 'sol') {
-        const flareGlow = this.ctx.createRadialGradient(px, py, currentRadius * 0.5, px, py, currentRadius * 2.2);
-        flareGlow.addColorStop(0, 'rgba(255, 230, 100, 0.8)');
-        flareGlow.addColorStop(0.5, 'rgba(239, 68, 68, 0.4)');
-        flareGlow.addColorStop(1, 'transparent');
-        this.ctx.fillStyle = flareGlow;
-        this.ctx.beginPath();
-        this.ctx.arc(px, py, currentRadius * 2.2, 0, Math.PI * 2);
-        this.ctx.fill();
+      // Brilho atmosférico azul ciano
+      const atmo = ctx.createRadialGradient(px, py, r * 0.9, px, py, r * 1.35);
+      atmo.addColorStop(0, 'rgba(56, 182, 255, 0.55)');
+      atmo.addColorStop(0.5, 'rgba(30, 64, 175, 0.25)');
+      atmo.addColorStop(1, 'transparent');
+      ctx.fillStyle = atmo;
+      ctx.beginPath();
+      ctx.arc(px, py, r * 1.35, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Recorte da esfera da Terra
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, Math.PI * 2);
+      ctx.clip();
+
+      // Oceanos profundos
+      const ocean = ctx.createRadialGradient(px - r * 0.35, py - r * 0.35, r * 0.1, px, py, r);
+      ocean.addColorStop(0, '#2563eb');
+      ocean.addColorStop(0.5, '#1d4ed8');
+      ocean.addColorStop(1, '#0f172a');
+      ctx.fillStyle = ocean;
+      ctx.fillRect(px - r, py - r, r * 2, r * 2);
+
+      // Continentes Procedurais
+      ctx.fillStyle = '#16a34a';
+      // América do Norte
+      ctx.beginPath();
+      ctx.ellipse(px - r * 0.35, py - r * 0.28, r * 0.32, r * 0.35, -0.3, 0, Math.PI * 2);
+      ctx.fill();
+      // América do Sul
+      ctx.beginPath();
+      ctx.ellipse(px - r * 0.18, py + r * 0.35, r * 0.22, r * 0.38, 0.2, 0, Math.PI * 2);
+      ctx.fill();
+      // Eurásia
+      ctx.beginPath();
+      ctx.ellipse(px + r * 0.36, py - r * 0.32, r * 0.42, r * 0.28, 0.1, 0, Math.PI * 2);
+      ctx.fill();
+      // África
+      ctx.fillStyle = '#a16207';
+      ctx.beginPath();
+      ctx.ellipse(px + r * 0.26, py + r * 0.18, r * 0.24, r * 0.32, 0.15, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Calotas Polares Brancas (Gelo Ártico e Antártico)
+      ctx.fillStyle = '#f8fafc';
+      ctx.beginPath();
+      ctx.ellipse(px, py - r * 0.88, r * 0.5, r * 0.16, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(px, py + r * 0.88, r * 0.55, r * 0.18, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Camada de Nuvens em Espiral
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+      ctx.beginPath();
+      ctx.ellipse(px - r * 0.1, py - r * 0.1, r * 0.65, r * 0.1, 0.25, 0, Math.PI * 2);
+      ctx.ellipse(px + r * 0.2, py + r * 0.4, r * 0.5, r * 0.08, -0.2, 0, Math.PI * 2);
+      ctx.ellipse(px - r * 0.28, py + r * 0.12, r * 0.4, r * 0.08, 0.35, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Sombra 3D Esférica do Terminador
+      const shadow = ctx.createRadialGradient(px - r * 0.45, py - r * 0.45, r * 0.2, px, py, r);
+      shadow.addColorStop(0, 'rgba(255,255,255,0.18)');
+      shadow.addColorStop(0.45, 'transparent');
+      shadow.addColorStop(0.85, 'rgba(3, 7, 18, 0.65)');
+      shadow.addColorStop(1, 'rgba(2, 6, 23, 0.98)');
+      ctx.fillStyle = shadow;
+      ctx.fillRect(px - r, py - r, r * 2, r * 2);
+
+      ctx.restore();
+      ctx.restore();
+    }
+
+    drawVenus(px, py, r) {
+      const ctx = this.ctx;
+      ctx.save();
+
+      // Brilho quente atmosférico
+      const atmo = ctx.createRadialGradient(px, py, r * 0.9, px, py, r * 1.35);
+      atmo.addColorStop(0, 'rgba(245, 158, 11, 0.5)');
+      atmo.addColorStop(0.6, 'rgba(180, 83, 9, 0.2)');
+      atmo.addColorStop(1, 'transparent');
+      ctx.fillStyle = atmo;
+      ctx.beginPath();
+      ctx.arc(px, py, r * 1.35, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, Math.PI * 2);
+      ctx.clip();
+
+      // Fundo ocre dourado
+      const base = ctx.createRadialGradient(px - r * 0.3, py - r * 0.3, r * 0.1, px, py, r);
+      base.addColorStop(0, '#fef08a');
+      base.addColorStop(0.4, '#f59e0b');
+      base.addColorStop(0.8, '#d97706');
+      base.addColorStop(1, '#451a03');
+      ctx.fillStyle = base;
+      ctx.fillRect(px - r, py - r, r * 2, r * 2);
+
+      // Faixas onduladas de nuvens de ácido sulfúrico
+      ctx.fillStyle = 'rgba(254, 240, 138, 0.4)';
+      for (let i = -4; i <= 4; i++) {
+        ctx.beginPath();
+        ctx.ellipse(px, py + (i * r) / 5, r * 0.95, r * 0.08, 0.08 * (i % 2 === 0 ? 1 : -1), 0, Math.PI * 2);
+        ctx.fill();
       }
 
-      // Corpo principal do planeta
-      const grad = this.ctx.createRadialGradient(
-        px - currentRadius * 0.35,
-        py - currentRadius * 0.35,
-        currentRadius * 0.1,
-        px,
-        py,
-        currentRadius
-      );
-      grad.addColorStop(0, primary);
-      grad.addColorStop(0.7, secondary);
-      grad.addColorStop(1, '#030712');
+      // Sombra 3D
+      const shadow = ctx.createRadialGradient(px - r * 0.4, py - r * 0.4, r * 0.2, px, py, r);
+      shadow.addColorStop(0, 'rgba(255,255,255,0.2)');
+      shadow.addColorStop(0.5, 'transparent');
+      shadow.addColorStop(1, 'rgba(20, 7, 0, 0.92)');
+      ctx.fillStyle = shadow;
+      ctx.fillRect(px - r, py - r, r * 2, r * 2);
 
-      this.ctx.fillStyle = grad;
-      this.ctx.beginPath();
-      this.ctx.arc(px, py, currentRadius, 0, Math.PI * 2);
-      this.ctx.fill();
+      ctx.restore();
+      ctx.restore();
+    }
 
-      // Anéis de Saturno e Urano
-      if (this.currentStage.key === 'saturno' || this.currentStage.key === 'urano') {
-        this.ctx.save();
-        this.ctx.translate(px, py);
-        this.ctx.rotate(this.currentStage.key === 'saturno' ? 0.35 : 0.8);
-        this.ctx.scale(1, 0.28);
-        this.ctx.beginPath();
-        this.ctx.arc(0, 0, currentRadius * 2.1, 0, Math.PI * 2);
-        this.ctx.strokeStyle = this.currentStage.key === 'saturno' ? 'rgba(245, 158, 11, 0.5)' : 'rgba(165, 243, 252, 0.4)';
-        this.ctx.lineWidth = 14;
-        this.ctx.stroke();
-        this.ctx.restore();
+    drawMercury(px, py, r) {
+      const ctx = this.ctx;
+      ctx.save();
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, Math.PI * 2);
+      ctx.clip();
+
+      // Superfície cinza rochosa craterada
+      const rock = ctx.createRadialGradient(px - r * 0.35, py - r * 0.35, r * 0.1, px, py, r);
+      rock.addColorStop(0, '#cbd5e1');
+      rock.addColorStop(0.45, '#94a3b8');
+      rock.addColorStop(0.85, '#475569');
+      rock.addColorStop(1, '#0f172a');
+      ctx.fillStyle = rock;
+      ctx.fillRect(px - r, py - r, r * 2, r * 2);
+
+      // Crateras de impacto e raios
+      ctx.fillStyle = '#334155';
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 1;
+
+      const craters = [
+        { x: -0.3, y: -0.2, rad: 0.18 },
+        { x: 0.25, y: 0.25, rad: 0.22 },
+        { x: -0.1, y: 0.4, rad: 0.14 },
+        { x: 0.35, y: -0.35, rad: 0.16 },
+        { x: 0.05, y: -0.1, rad: 0.12 },
+      ];
+
+      craters.forEach((c) => {
+        ctx.beginPath();
+        ctx.arc(px + c.x * r, py + c.y * r, c.rad * r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      });
+
+      // Sombra stark sem atmosfera
+      const shadow = ctx.createRadialGradient(px - r * 0.4, py - r * 0.4, r * 0.2, px, py, r);
+      shadow.addColorStop(0, 'transparent');
+      shadow.addColorStop(0.65, 'rgba(15, 23, 42, 0.4)');
+      shadow.addColorStop(1, 'rgba(2, 6, 23, 0.98)');
+      ctx.fillStyle = shadow;
+      ctx.fillRect(px - r, py - r, r * 2, r * 2);
+
+      ctx.restore();
+      ctx.restore();
+    }
+
+    drawSun(px, py, r) {
+      const ctx = this.ctx;
+      const t = performance.now() * 0.003;
+      ctx.save();
+
+      // Pulso massivo da Coroa Solar
+      const corona = ctx.createRadialGradient(px, py, r * 0.6, px, py, r * 2.5);
+      corona.addColorStop(0, 'rgba(255, 240, 150, 0.9)');
+      corona.addColorStop(0.35, 'rgba(249, 115, 22, 0.5)');
+      corona.addColorStop(0.7, 'rgba(220, 38, 38, 0.2)');
+      corona.addColorStop(1, 'transparent');
+      ctx.fillStyle = corona;
+      ctx.beginPath();
+      ctx.arc(px, py, r * 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Labaredas solares dinâmicas na borda (Prominências)
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 3;
+      for (let i = 0; i < 16; i++) {
+        const angle = (i * Math.PI * 2) / 16 + Math.sin(t + i) * 0.1;
+        const len = r + 15 + Math.sin(t * 2 + i * 1.5) * 16;
+        ctx.beginPath();
+        ctx.moveTo(px + Math.cos(angle) * r, py + Math.sin(angle) * r);
+        ctx.lineTo(px + Math.cos(angle) * len, py + Math.sin(angle) * len);
+        ctx.stroke();
       }
 
-      this.ctx.restore();
+      // Disco do Sol superaquecido
+      const core = ctx.createRadialGradient(px, py, 0, px, py, r);
+      core.addColorStop(0, '#ffffff');
+      core.addColorStop(0.25, '#fef08a');
+      core.addColorStop(0.6, '#f59e0b');
+      core.addColorStop(0.9, '#ea580c');
+      core.addColorStop(1, '#b91c1c');
+      ctx.fillStyle = core;
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    drawMars(px, py, r) {
+      const ctx = this.ctx;
+      ctx.save();
+
+      // Haze avermelhado tênue
+      const atmo = ctx.createRadialGradient(px, py, r * 0.9, px, py, r * 1.25);
+      atmo.addColorStop(0, 'rgba(248, 113, 113, 0.4)');
+      atmo.addColorStop(1, 'transparent');
+      ctx.fillStyle = atmo;
+      ctx.beginPath();
+      ctx.arc(px, py, r * 1.25, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, Math.PI * 2);
+      ctx.clip();
+
+      // Superfície vermelha / ferrugem
+      const soil = ctx.createRadialGradient(px - r * 0.35, py - r * 0.35, r * 0.1, px, py, r);
+      soil.addColorStop(0, '#fb7185');
+      soil.addColorStop(0.4, '#e11d48');
+      soil.addColorStop(0.8, '#9f1239');
+      soil.addColorStop(1, '#4c0519');
+      ctx.fillStyle = soil;
+      ctx.fillRect(px - r, py - r, r * 2, r * 2);
+
+      // Bacias vulcânicas escuras (Syrtis Major)
+      ctx.fillStyle = '#4c0519';
+      ctx.beginPath();
+      ctx.ellipse(px + r * 0.15, py - r * 0.1, r * 0.38, r * 0.28, 0.4, 0, Math.PI * 2);
+      ctx.ellipse(px - r * 0.25, py + r * 0.2, r * 0.32, r * 0.24, -0.3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Calota Polar Branca de Gelo no Polo Norte (Inconfundível de Marte!)
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.ellipse(px, py - r * 0.88, r * 0.45, r * 0.16, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Sombra esférica
+      const shadow = ctx.createRadialGradient(px - r * 0.4, py - r * 0.4, r * 0.2, px, py, r);
+      shadow.addColorStop(0, 'rgba(255,255,255,0.15)');
+      shadow.addColorStop(0.5, 'transparent');
+      shadow.addColorStop(1, 'rgba(20, 2, 5, 0.95)');
+      ctx.fillStyle = shadow;
+      ctx.fillRect(px - r, py - r, r * 2, r * 2);
+
+      ctx.restore();
+      ctx.restore();
+    }
+
+    drawAsteroidBelt(px, py, r) {
+      const ctx = this.ctx;
+      ctx.save();
+
+      // Planeta-anão Ceres ao fundo
+      const ceresRad = r * 0.65;
+      const ceresGrad = ctx.createRadialGradient(px - ceresRad * 0.3, py - ceresRad * 0.3, 0, px, py, ceresRad);
+      ceresGrad.addColorStop(0, '#94a3b8');
+      ceresGrad.addColorStop(0.7, '#475569');
+      ceresGrad.addColorStop(1, '#0f172a');
+      ctx.fillStyle = ceresGrad;
+      ctx.beginPath();
+      ctx.arc(px, py, ceresRad, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Anéis de asteroides em órbita elíptica
+      ctx.fillStyle = '#cbd5e1';
+      for (let i = 0; i < 28; i++) {
+        const angle = (i * Math.PI * 2) / 28;
+        const dist = r * (1.1 + (i % 3) * 0.2);
+        const ax = px + Math.cos(angle) * dist * 1.5;
+        const ay = py + Math.sin(angle) * dist * 0.38;
+        const aRad = 2.5 + (i % 4) * 1.5;
+
+        ctx.beginPath();
+        ctx.arc(ax, ay, aRad, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    drawJupiter(px, py, r) {
+      const ctx = this.ctx;
+      ctx.save();
+
+      // Brilho quente suave
+      const atmo = ctx.createRadialGradient(px, py, r * 0.9, px, py, r * 1.3);
+      atmo.addColorStop(0, 'rgba(251, 191, 36, 0.35)');
+      atmo.addColorStop(1, 'transparent');
+      ctx.fillStyle = atmo;
+      ctx.beginPath();
+      ctx.arc(px, py, r * 1.3, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, Math.PI * 2);
+      ctx.clip();
+
+      // Base ocre
+      ctx.fillStyle = '#fed7aa';
+      ctx.fillRect(px - r, py - r, r * 2, r * 2);
+
+      // Faixas gasosas horizontais características de Júpiter
+      const bands = [
+        { y: -0.75, h: 0.18, color: '#ea580c' },
+        { y: -0.45, h: 0.15, color: '#7c2d12' },
+        { y: -0.2, h: 0.22, color: '#fed7aa' },
+        { y: 0.05, h: 0.25, color: '#c2410c' },
+        { y: 0.35, h: 0.18, color: '#7c2d12' },
+        { y: 0.6, h: 0.2, color: '#ea580c' },
+        { y: 0.82, h: 0.18, color: '#fed7aa' },
+      ];
+
+      bands.forEach((b) => {
+        ctx.fillStyle = b.color;
+        ctx.fillRect(px - r, py + b.y * r, r * 2, b.h * r);
+      });
+
+      // A Grande Mancha Vermelha (The Great Red Spot)!
+      const spotX = px + r * 0.28;
+      const spotY = py + r * 0.25;
+      ctx.fillStyle = '#b91c1c';
+      ctx.beginPath();
+      ctx.ellipse(spotX, spotY, r * 0.24, r * 0.14, 0.1, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#fed7aa';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Sombra 3D esférica
+      const shadow = ctx.createRadialGradient(px - r * 0.45, py - r * 0.45, r * 0.25, px, py, r);
+      shadow.addColorStop(0, 'rgba(255,255,255,0.18)');
+      shadow.addColorStop(0.5, 'transparent');
+      shadow.addColorStop(1, 'rgba(20, 8, 3, 0.92)');
+      ctx.fillStyle = shadow;
+      ctx.fillRect(px - r, py - r, r * 2, r * 2);
+
+      ctx.restore();
+      ctx.restore();
+    }
+
+    drawSaturn(px, py, r) {
+      const ctx = this.ctx;
+      ctx.save();
+
+      // 1. Metade traseira dos Anéis (desenhada ATRÁS do planeta)
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(0.35);
+      ctx.scale(1, 0.28);
+
+      // Anel B (interno dourado)
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 1.7, Math.PI, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.6)';
+      ctx.lineWidth = r * 0.35;
+      ctx.stroke();
+
+      // Anel A (externo com divisão de Cassini)
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 2.2, Math.PI, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(253, 224, 71, 0.45)';
+      ctx.lineWidth = r * 0.3;
+      ctx.stroke();
+
+      ctx.restore();
+
+      // 2. Disco do Planeta Saturno
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, Math.PI * 2);
+      ctx.clip();
+
+      // Gradiente suave de tons mel/dourado
+      const satGrad = ctx.createRadialGradient(px - r * 0.35, py - r * 0.35, r * 0.1, px, py, r);
+      satGrad.addColorStop(0, '#fef08a');
+      satGrad.addColorStop(0.4, '#fde047');
+      satGrad.addColorStop(0.8, '#d97706');
+      satGrad.addColorStop(1, '#451a03');
+      ctx.fillStyle = satGrad;
+      ctx.fillRect(px - r, py - r, r * 2, r * 2);
+
+      // Faixas pastéis
+      ctx.fillStyle = 'rgba(217, 119, 6, 0.25)';
+      for (let i = -3; i <= 3; i++) {
+        ctx.fillRect(px - r, py + (i * r) / 4, r * 2, r * 0.1);
+      }
+
+      // Sombra dos anéis sobre o equador de Saturno
+      ctx.fillStyle = 'rgba(30, 10, 0, 0.45)';
+      ctx.fillRect(px - r, py - r * 0.08, r * 2, r * 0.16);
+
+      // Sombra 3D
+      const shadow = ctx.createRadialGradient(px - r * 0.45, py - r * 0.45, r * 0.2, px, py, r);
+      shadow.addColorStop(0, 'rgba(255,255,255,0.15)');
+      shadow.addColorStop(0.5, 'transparent');
+      shadow.addColorStop(1, 'rgba(20, 10, 2, 0.92)');
+      ctx.fillStyle = shadow;
+      ctx.fillRect(px - r, py - r, r * 2, r * 2);
+
+      ctx.restore();
+
+      // 3. Metade frontal dos Anéis (desenhada NA FRENTE do planeta)
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(0.35);
+      ctx.scale(1, 0.28);
+
+      // Anel B (frontal)
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 1.7, 0, Math.PI);
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.75)';
+      ctx.lineWidth = r * 0.35;
+      ctx.stroke();
+
+      // Divisão de Cassini (espaço vazio escuro entre os anéis)
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 1.95, 0, Math.PI);
+      ctx.strokeStyle = '#020617';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Anel A (frontal)
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 2.2, 0, Math.PI);
+      ctx.strokeStyle = 'rgba(253, 224, 71, 0.6)';
+      ctx.lineWidth = r * 0.3;
+      ctx.stroke();
+
+      ctx.restore();
+      ctx.restore();
+    }
+
+    drawUranus(px, py, r) {
+      const ctx = this.ctx;
+      ctx.save();
+
+      // Haze ciano gelado
+      const atmo = ctx.createRadialGradient(px, py, r * 0.9, px, py, r * 1.35);
+      atmo.addColorStop(0, 'rgba(34, 211, 238, 0.5)');
+      atmo.addColorStop(1, 'transparent');
+      ctx.fillStyle = atmo;
+      ctx.beginPath();
+      ctx.arc(px, py, r * 1.35, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Esfera azul-turquesa
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, Math.PI * 2);
+      ctx.clip();
+
+      const ice = ctx.createRadialGradient(px - r * 0.35, py - r * 0.35, r * 0.1, px, py, r);
+      ice.addColorStop(0, '#cffafe');
+      ice.addColorStop(0.4, '#38b6ff');
+      ice.addColorStop(0.8, '#0284c7');
+      ice.addColorStop(1, '#082f49');
+      ctx.fillStyle = ice;
+      ctx.fillRect(px - r, py - r, r * 2, r * 2);
+
+      ctx.restore();
+
+      // Anéis finos verticais inclinados (Urano tem inclinação de 98 graus!)
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(1.4);
+      ctx.scale(1, 0.15);
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 1.85, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(165, 243, 252, 0.45)';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.restore();
+    }
+
+    drawNeptune(px, py, r) {
+      const ctx = this.ctx;
+      ctx.save();
+
+      // Brilho azul cobalto intenso
+      const atmo = ctx.createRadialGradient(px, py, r * 0.9, px, py, r * 1.35);
+      atmo.addColorStop(0, 'rgba(59, 130, 246, 0.6)');
+      atmo.addColorStop(1, 'transparent');
+      ctx.fillStyle = atmo;
+      ctx.beginPath();
+      ctx.arc(px, py, r * 1.35, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, Math.PI * 2);
+      ctx.clip();
+
+      // Azul profundo
+      const nept = ctx.createRadialGradient(px - r * 0.35, py - r * 0.35, r * 0.1, px, py, r);
+      nept.addColorStop(0, '#60a5fa');
+      nept.addColorStop(0.35, '#2563eb');
+      nept.addColorStop(0.75, '#1e3a8a');
+      nept.addColorStop(1, '#091540');
+      ctx.fillStyle = nept;
+      ctx.fillRect(px - r, py - r, r * 2, r * 2);
+
+      // Grande Mancha Escura de Netuno
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.ellipse(px - r * 0.2, py - r * 0.15, r * 0.28, r * 0.16, -0.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Nuvens brancas brilhantes de metano em alta altitude
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+      ctx.beginPath();
+      ctx.ellipse(px + r * 0.15, py + r * 0.25, r * 0.45, r * 0.05, 0.15, 0, Math.PI * 2);
+      ctx.ellipse(px - r * 0.15, py - r * 0.28, r * 0.35, r * 0.04, -0.1, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Sombra
+      const shadow = ctx.createRadialGradient(px - r * 0.4, py - r * 0.4, r * 0.2, px, py, r);
+      shadow.addColorStop(0, 'rgba(255,255,255,0.15)');
+      shadow.addColorStop(0.5, 'transparent');
+      shadow.addColorStop(1, 'rgba(2, 6, 23, 0.95)');
+      ctx.fillStyle = shadow;
+      ctx.fillRect(px - r, py - r, r * 2, r * 2);
+
+      ctx.restore();
+      ctx.restore();
+    }
+
+    drawKuiperBelt(px, py, r) {
+      const ctx = this.ctx;
+      ctx.save();
+
+      // Plutão com o famoso coração de gelo brilhante (Tombaugh Regio)
+      const plutoRad = r * 0.72;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(px, py, plutoRad, 0, Math.PI * 2);
+      ctx.clip();
+
+      const plutoGrad = ctx.createRadialGradient(px - plutoRad * 0.3, py - plutoRad * 0.3, 0, px, py, plutoRad);
+      plutoGrad.addColorStop(0, '#f1f5f9');
+      plutoGrad.addColorStop(0.5, '#94a3b8');
+      plutoGrad.addColorStop(0.85, '#64748b');
+      plutoGrad.addColorStop(1, '#0f172a');
+      ctx.fillStyle = plutoGrad;
+      ctx.fillRect(px - plutoRad, py - plutoRad, plutoRad * 2, plutoRad * 2);
+
+      // Coração de gelo (Tombaugh Regio)
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.ellipse(px + plutoRad * 0.1, py + plutoRad * 0.08, plutoRad * 0.35, plutoRad * 0.28, 0.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+
+      // Lua Caronte em órbita
+      const charonX = px + r * 1.15;
+      const charonY = py - r * 0.4;
+      const charonRad = r * 0.22;
+      ctx.fillStyle = '#64748b';
+      ctx.beginPath();
+      ctx.arc(charonX, charonY, charonRad, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Cometas e fragmentos de gelo do Cinturão de Kuiper
+      ctx.fillStyle = '#c084fc';
+      for (let i = 0; i < 22; i++) {
+        const kx = px + Math.cos(i) * r * 1.45;
+        const ky = py + Math.sin(i * 1.5) * r * 0.7;
+        ctx.beginPath();
+        ctx.arc(kx, ky, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    drawGenericPlanet(px, py, r) {
+      const ctx = this.ctx;
+      ctx.save();
+      const grad = ctx.createRadialGradient(px - r * 0.3, py - r * 0.3, 0, px, py, r);
+      grad.addColorStop(0, '#38b6ff');
+      grad.addColorStop(1, '#0f172a');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
     }
 
     // -------------------------------------------------------------

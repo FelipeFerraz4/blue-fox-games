@@ -217,15 +217,16 @@ canvas#defenseCanvas {
 }
 
 /* Intro Crawl (História Estelar) */
+/* Intro Crawl (História Estelar) */
 .crawl-container {
-  perspective: 400px;
-  height: 70%;
-  width: 90%;
-  max-width: 600px;
+  perspective: 500px;
+  height: 75%;
+  width: 95%;
+  max-width: 760px;
   overflow: hidden;
   position: relative;
-  mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0) 100%);
-  -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 45%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 45%, rgba(0, 0, 0, 0) 100%);
 }
 .crawl-content {
   position: absolute;
@@ -233,54 +234,58 @@ canvas#defenseCanvas {
   left: 0;
   right: 0;
   transform-origin: 50% 100%;
-  transform: rotateX(25deg);
-  animation: crawlAnimation 45s linear infinite;
+  transform: rotateX(16deg);
+  animation: crawlAnimation 42s linear infinite;
+  text-align: center;
 }
 @keyframes crawlAnimation {
   0% {
     top: 100%;
   }
   100% {
-    top: -180%;
+    top: -190%;
   }
 }
 .crawl-title {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.8rem;
-  font-weight: 800;
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  font-weight: 900;
   color: var(--hud-amber);
-  margin-bottom: 8px;
-  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 24px rgba(245, 158, 11, 0.7);
 }
 .crawl-stardate {
-  font-size: 0.85rem;
+  font-size: clamp(0.95rem, 2vw, 1.15rem);
   color: var(--hud-cyan);
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  margin-bottom: 24px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  margin-bottom: 28px;
+  text-shadow: 0 0 12px rgba(56, 182, 255, 0.6);
 }
 .crawl-text {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: #e2e8f0;
-  margin: 12px 0;
-  font-weight: 500;
+  font-size: clamp(1.25rem, 2.6vw, 1.55rem);
+  line-height: 1.8;
+  color: #f8fafc;
+  margin: 16px 0;
+  font-weight: 700;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95);
 }
 
 .crawl-controls {
-  margin-top: 20px;
+  margin-top: 18px;
   display: flex;
   gap: 12px;
 }
 
-/* Briefing da Fase */
+/* Briefing da Fase (Rápido e direto) */
 .briefing-box {
-  max-width: 620px;
+  max-width: 520px;
   width: 100%;
   background: var(--hud-glass);
   border: 1px solid var(--hud-border);
-  border-radius: 20px;
-  padding: 24px;
+  border-radius: 18px;
+  padding: 18px 22px;
   box-shadow: 0 0 30px rgba(56, 182, 255, 0.2);
   text-align: left;
 }
@@ -288,7 +293,7 @@ canvas#defenseCanvas {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   flex-wrap: wrap;
   gap: 8px;
 }
@@ -296,7 +301,7 @@ canvas#defenseCanvas {
   font-family: 'Outfit', sans-serif;
   font-size: 0.75rem;
   font-weight: 800;
-  padding: 4px 12px;
+  padding: 3px 10px;
   border-radius: 999px;
   background: rgba(56, 182, 255, 0.2);
   color: var(--hud-cyan);
@@ -309,32 +314,33 @@ canvas#defenseCanvas {
 }
 .briefing-title {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   font-weight: 800;
-  margin: 0 0 6px 0;
+  margin: 0 0 4px 0;
   color: #fff;
 }
 .briefing-codename {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--hud-amber);
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   font-weight: 600;
 }
 .briefing-text {
   font-size: 0.95rem;
-  line-height: 1.5;
-  color: #cbd5e1;
-  margin-bottom: 16px;
+  line-height: 1.45;
+  color: #e2e8f0;
+  margin-bottom: 10px;
+  font-weight: 500;
 }
 .briefing-pilot-quote {
   background: rgba(56, 182, 255, 0.08);
   border-left: 3px solid var(--hud-cyan);
-  padding: 10px 14px;
-  border-radius: 0 10px 10px 0;
+  padding: 8px 12px;
+  border-radius: 0 8px 8px 0;
   font-style: italic;
-  font-size: 0.88rem;
-  color: #e2e8f0;
-  margin-bottom: 20px;
+  font-size: 0.82rem;
+  color: #bae6fd;
+  margin-bottom: 14px;
 }
 .briefing-reward-box {
   display: flex;
@@ -342,21 +348,21 @@ canvas#defenseCanvas {
   gap: 12px;
   background: rgba(139, 92, 246, 0.15);
   border: 1px solid rgba(139, 92, 246, 0.35);
-  padding: 10px 14px;
+  padding: 8px 12px;
   border-radius: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 .reward-icon {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
 }
 .reward-info h4 {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   color: #c4b5fd;
 }
 .reward-info p {
   margin: 2px 0 0 0;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: #cbd5e1;
 }
 
