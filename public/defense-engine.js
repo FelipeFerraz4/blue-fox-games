@@ -293,6 +293,7 @@
         screenCrawl: document.getElementById('screenCrawl'),
         crawlTextContainer: document.getElementById('crawlTextContainer'),
         btnSkipCrawl: document.getElementById('btnSkipCrawl'),
+        btnPlayNow: document.getElementById('btnPlayNow'),
 
         screenBriefing: document.getElementById('screenBriefing'),
         briefingBadge: document.getElementById('briefingStageBadge'),
@@ -355,6 +356,14 @@
       requestAnimationFrame((t) => this.loop(t));
     }
 
+    // Helper seguro para formatar distância astronômica
+    formatAU(val) {
+      if (typeof val === 'number') {
+        return `${val.toFixed(2)} UA`;
+      }
+      return String(val || '1.00 UA');
+    }
+
     // -------------------------------------------------------------
     // Persistência em LocalStorage
     // -------------------------------------------------------------
@@ -394,7 +403,7 @@
           x: (Math.random() - 0.5) * this.V_WIDTH * 2.2,
           y: (Math.random() - 0.5) * this.V_HEIGHT * 2.2,
           z: Math.random() * 1000 + 1,
-          pz: 0, // Z anterior para desenhar linhas de velocidade (motion blur)
+          pz: 0,
           color: Math.random() > 0.85 ? '#38b6ff' : Math.random() > 0.9 ? '#8b5cf6' : '#ffffff',
           size: Math.random() * 1.5 + 0.8,
         });
@@ -402,7 +411,6 @@
     }
 
     updateStarfield(dt) {
-      // Base speed no vácuo + aceleração de salto hiperespacial
       const baseSpeed = 240 * (this.isWarping ? 8.0 : 1.0) * this.warpSpeedFactor;
       const fov = 300;
       const cx = this.V_WIDTH / 2;
@@ -439,7 +447,6 @@
         const screenX = cx + (s.x / s.z) * fov;
         const screenY = cy + (s.y / s.z) * fov;
 
-        // Ponto anterior para efeito de rastro de velocidade
         const prevScreenX = cx + (s.x / s.pz) * fov;
         const prevScreenY = cy + (s.y / s.pz) * fov;
 
@@ -447,7 +454,6 @@
           const depthAlpha = Math.min(1, Math.max(0.1, (1000 - s.z) / 800));
 
           if (this.isWarping || this.warpSpeedFactor > 1.2) {
-            // Linhas de hiperespaço
             this.ctx.strokeStyle = s.color;
             this.ctx.lineWidth = s.size * (1000 / s.z) * 0.8;
             this.ctx.globalAlpha = depthAlpha;
@@ -457,7 +463,6 @@
             this.ctx.stroke();
             this.ctx.globalAlpha = 1;
           } else {
-            // Estrela pontual suavemente projetada
             const r = Math.max(0.7, (s.size * (600 / s.z)) * 0.9);
             this.ctx.fillStyle = s.color;
             this.ctx.globalAlpha = depthAlpha;
@@ -481,7 +486,6 @@
         ? Math.min(1, this.stageKillCount / this.stageTotalAliens)
         : 0;
 
-      // Conforme o jogador destrói a frota alienígena, a nave se aproxima do planeta
       const baseRadius = 45;
       const targetRadius = 140;
       const currentRadius = baseRadius + (targetRadius - baseRadius) * progress;
@@ -489,10 +493,10 @@
       const px = this.V_WIDTH / 2;
       const py = 150 + progress * 20;
 
-      const theme = this.currentStage.theme || {};
-      const primary = theme.planetPrimary || '#38b6ff';
-      const secondary = theme.planetSecondary || '#1e3a8a';
-      const atmosphere = theme.atmosphereGlow || 'rgba(56, 182, 255, 0.4)';
+      const theme = this.currentStage.visualTheme || this.currentStage.theme || {};
+      const primary = theme.planetGlow || theme.planetPrimary || '#38b6ff';
+      const secondary = theme.skyColor || theme.planetSecondary || '#1e3a8a';
+      const atmosphere = theme.nebulaAccent || theme.atmosphereGlow || 'rgba(56, 182, 255, 0.4)';
 
       this.ctx.save();
 
@@ -507,7 +511,6 @@
 
       // Se for o Sol (Fase 4), adicione labaredas e pulso térmico
       if (this.currentStage.key === 'sol') {
-        const time = performance.now() * 0.003;
         const flareGlow = this.ctx.createRadialGradient(px, py, currentRadius * 0.5, px, py, currentRadius * 2.2);
         flareGlow.addColorStop(0, 'rgba(255, 230, 100, 0.8)');
         flareGlow.addColorStop(0.5, 'rgba(239, 68, 68, 0.4)');
@@ -536,7 +539,7 @@
       this.ctx.arc(px, py, currentRadius, 0, Math.PI * 2);
       this.ctx.fill();
 
-      // Aneis de Saturno e Urano
+      // Anéis de Saturno e Urano
       if (this.currentStage.key === 'saturno' || this.currentStage.key === 'urano') {
         this.ctx.save();
         this.ctx.translate(px, py);
@@ -583,7 +586,7 @@
       this.buildFleet(s.wave);
 
       // Se a fase tem asteroides soltos (Cinturão Principal ou Kuiper)
-      if (s.wave.hasAsteroids) {
+      if (s.wave && s.wave.hasAsteroids) {
         this.spawnAsteroids(8);
       }
 
@@ -593,8 +596,9 @@
 
     buildFleet(waveConfig) {
       this.alienFleet = [];
-      const rows = waveConfig.rows || 4;
-      const cols = waveConfig.cols || 8;
+      const wave = waveConfig || {};
+      const rows = wave.rows || 4;
+      const cols = wave.cols || 8;
       const alienW = 34;
       const alienH = 26;
       const gapX = 18;
@@ -643,22 +647,22 @@
       this.fleetDirection = 1;
       this.fleetStepDownNeeded = false;
       this.fleetMoveTimer = 0;
-      this.fleetStepInterval = Math.max(300, 750 - (waveConfig.alienSpeed || 1.0) * 120);
+      this.fleetStepInterval = Math.max(300, 750 - (wave.alienSpeed || 1.0) * 120);
 
       // Configuração de Chefe se houver
-      if (waveConfig.boss) {
+      if (wave.boss) {
         this.boss = {
-          name: waveConfig.boss.name,
-          title: waveConfig.boss.title,
-          maxHp: waveConfig.boss.hp || 40,
-          hp: waveConfig.boss.hp || 40,
-          phases: waveConfig.boss.phases || 2,
+          name: wave.boss.name,
+          title: wave.boss.title || 'Chefe Invasor',
+          maxHp: wave.boss.hp || 40,
+          hp: wave.boss.hp || 40,
+          phases: wave.boss.phases || 2,
           x: this.V_WIDTH / 2 - 50,
-          y: -100, // Entra descendo
+          y: -100,
           targetY: 80,
           width: 100,
           height: 60,
-          alive: false, // Ativado quando a frota diminuir
+          alive: false,
           shootTimer: 0,
           dir: 1,
         };
@@ -688,25 +692,29 @@
       const unlocked = this.saveData.unlockedUpgrades || [];
 
       // Double / Triple Laser
-      this.hasDoubleLaser = unlocked.includes('double_laser') || unlocked.includes('triple_laser');
-      this.hasTripleLaser = unlocked.includes('triple_laser');
+      this.hasDoubleLaser =
+        unlocked.includes('double-laser') ||
+        unlocked.includes('double_laser') ||
+        unlocked.includes('triple-laser') ||
+        unlocked.includes('triple_laser');
+      this.hasTripleLaser = unlocked.includes('triple-laser') || unlocked.includes('triple_laser');
 
       // Rapid Fire
-      if (unlocked.includes('rapid_fire')) {
-        this.player.shootCooldown = 220;
+      if (unlocked.includes('rapid-fire') || unlocked.includes('rapid_fire')) {
+        this.player.shootCooldown = 200;
       } else {
         this.player.shootCooldown = 320;
       }
 
       // Speed Thrusters
-      if (unlocked.includes('speed_thrusters')) {
-        this.player.speed = 8.0;
+      if (unlocked.includes('speed-thrusters') || unlocked.includes('speed_thrusters')) {
+        this.player.speed = 8.2;
       } else {
         this.player.speed = 6.2;
       }
 
-      // Plasma Shield & Armor
-      if (unlocked.includes('shield_regen')) {
+      // Plasma Shield
+      if (unlocked.includes('plasma-shield') || unlocked.includes('shield_regen')) {
         this.player.maxShields = 150;
       } else {
         this.player.maxShields = 100;
@@ -735,17 +743,28 @@
 
     formatUpgradeName(key) {
       const map = {
-        double_laser: 'Laser Duplo',
-        shield_regen: 'Escudo de Plasma',
-        speed_thrusters: 'Propulsores Iônicos',
-        solar_plating: 'Blindagem Solar',
-        rapid_fire: 'Canhões de Alta Frequência',
-        main_belt_radar: 'Radar Espacial',
-        triple_laser: 'Laser Triplo',
-        grav_repulsor: 'Repulsor Gravitacional',
-        sub_zero_cooling: 'Refrigeração Subzero',
-        hydra_torpedo: 'Bomba de Antimatéria',
-        hyper_drive: 'Hiper-Propulsão Ômega',
+        'double-laser': 'Laser Duplo',
+        'double_laser': 'Laser Duplo',
+        'plasma-shield': 'Escudo Iônico',
+        'shield_regen': 'Escudo de Plasma',
+        'speed-thrusters': 'Propulsores Iônicos',
+        'speed_thrusters': 'Propulsores Iônicos',
+        'solar-armor': 'Blindagem Solar',
+        'solar_plating': 'Blindagem Solar',
+        'rapid-fire': 'Tiro Rápido',
+        'rapid_fire': 'Canhões de Alta Frequência',
+        'asteroid-scanner': 'Radar Espacial',
+        'main_belt_radar': 'Radar Espacial',
+        'triple-laser': 'Laser Triplo',
+        'triple_laser': 'Laser Triplo',
+        'plasma-repulsor': 'Repulsor Gravitacional',
+        'grav_repulsor': 'Repulsor Gravitacional',
+        'cryo-armor': 'Refrigeração Subzero',
+        'sub_zero_cooling': 'Refrigeração Subzero',
+        'smart-bomb': 'Bomba de Antimatéria',
+        'hydra_torpedo': 'Bomba de Antimatéria',
+        'hyper-drive': 'Hiper-Propulsão Ômega',
+        'hyper_drive': 'Hiper-Propulsão Ômega',
       };
       return map[key] || key;
     }
@@ -773,7 +792,7 @@
       if (this.isWarping) {
         this.warpTimer += dt;
         this.warpSpeedFactor = 1.0 + this.warpTimer * 4.0;
-        this.player.y -= 120 * dt; // Nave acelera para a frente
+        this.player.y -= 120 * dt;
         if (this.warpTimer > 1.8) {
           this.finishStageVictory();
         }
@@ -834,7 +853,7 @@
 
       // 8. Tiros Alienígenas
       this.alienShootTimer += dt * 1000;
-      const shootInterval = this.currentStage.wave.alienCooldownMs || 650;
+      const shootInterval = (this.currentStage.wave && this.currentStage.wave.alienCooldownMs) || 650;
       if (this.alienShootTimer >= shootInterval) {
         this.alienShootTimer = 0;
         this.alienShoot();
@@ -896,7 +915,6 @@
           continue;
         }
 
-        // Loop de reciclagem de asteroides
         if (ast && ast.y > this.V_HEIGHT + 50) {
           ast.y = -60;
           ast.x = Math.random() * (this.V_WIDTH - 60) + 30;
@@ -917,9 +935,7 @@
 
       // 13. Checar Condição de Vitória da Fase
       const remainingAliens = this.alienFleet.filter((a) => a.alive).length;
-      const bossDefeated = !this.boss || (this.boss.alive && this.boss.hp <= 0);
-
-      if (remainingAliens === 0 && (!this.boss || this.boss.hp <= 0)) {
+      if (this.stageTotalAliens > 0 && remainingAliens === 0 && (!this.boss || this.boss.hp <= 0)) {
         this.triggerHyperWarp();
       }
     }
@@ -961,10 +977,8 @@
         color: '#f59e0b',
       });
 
-      // Destruir todos os tiros inimigos em tela
       this.alienBullets = [];
 
-      // Dano massivo a todos os aliens
       this.alienFleet.forEach((alien) => {
         if (alien.alive) {
           alien.alive = false;
@@ -989,7 +1003,6 @@
       let hitEdge = false;
       const stepX = 14 * this.fleetDirection;
 
-      // Verificar se algum alien bateu na borda lateral
       for (const alien of this.alienFleet) {
         if (!alien.alive) continue;
         const nextX = alien.x + stepX;
@@ -1001,11 +1014,9 @@
 
       if (hitEdge) {
         this.fleetDirection *= -1;
-        // Desce um nível
         for (const alien of this.alienFleet) {
           if (!alien.alive) continue;
           alien.y += 18;
-          // Invasão terrestre! Se os aliens alcançarem a nave, game over
           if (alien.y + alien.height >= this.player.y - 10) {
             this.gameOver();
             return;
@@ -1018,14 +1029,12 @@
         }
       }
 
-      // Aumenta a velocidade dos aliens conforme a frota diminui
       const aliveCount = this.alienFleet.filter((a) => a.alive).length;
       if (aliveCount > 0) {
         const ratio = aliveCount / this.stageTotalAliens;
         this.fleetStepInterval = Math.max(120, 200 + ratio * 450);
       }
 
-      // Ativar Boss se a frota estiver em 25% ou menos
       if (this.boss && !this.boss.alive && aliveCount <= Math.max(2, this.stageTotalAliens * 0.25)) {
         this.boss.alive = true;
         this.audio.playExplosion(true);
@@ -1036,14 +1045,15 @@
       const aliveAliens = this.alienFleet.filter((a) => a.alive);
       if (aliveAliens.length === 0) return;
 
-      // Escolhe um alien aleatório na linha de frente
       const shooter = aliveAliens[Math.floor(Math.random() * aliveAliens.length)];
+      const bulletSpd = (this.currentStage.wave && this.currentStage.wave.bulletSpeed) || 4.2;
+
       this.alienBullets.push({
         x: shooter.x + shooter.width / 2,
         y: shooter.y + shooter.height,
         width: 4,
         height: 12,
-        speed: this.currentStage.wave.bulletSpeed || 4.2,
+        speed: bulletSpd,
         color: '#ef4444',
         damage: 22,
       });
@@ -1052,16 +1062,14 @@
     }
 
     // -------------------------------------------------------------
-    // Chefe de Fase (ex: Coletor Vulcan ou Dreadnought Leviatã)
+    // Chefe de Fase
     // -------------------------------------------------------------
     updateBoss(dt) {
       if (!this.boss.alive) return;
 
-      // Descida dramática na entrada
       if (this.boss.y < this.boss.targetY) {
         this.boss.y += 60 * dt;
       } else {
-        // Movimento senoidal horizontal
         this.boss.x += 80 * this.boss.dir * dt;
         if (this.boss.x < 40) {
           this.boss.x = 40;
@@ -1071,14 +1079,12 @@
           this.boss.dir = -1;
         }
 
-        // Tiros do chefe
         this.boss.shootTimer += dt * 1000;
         if (this.boss.shootTimer > 850) {
           this.boss.shootTimer = 0;
           const bx = this.boss.x + this.boss.width / 2;
           const by = this.boss.y + this.boss.height;
 
-          // Disparo duplo em leque
           this.alienBullets.push({ x: bx - 25, y: by, width: 6, height: 16, speed: 4.8, color: '#f59e0b', damage: 30 });
           this.alienBullets.push({ x: bx + 25, y: by, width: 6, height: 16, speed: 4.8, color: '#f59e0b', damage: 30 });
           this.audio.playAlienLaser();
@@ -1094,7 +1100,6 @@
         const b = this.playerBullets[i];
         let bulletRemoved = false;
 
-        // Checar colisão com Chefão
         if (this.boss && this.boss.alive && this.boss.hp > 0) {
           if (
             b.x >= this.boss.x &&
@@ -1118,7 +1123,6 @@
           }
         }
 
-        // Checar colisão com Aliens normais
         for (const alien of this.alienFleet) {
           if (!alien.alive) continue;
 
@@ -1162,12 +1166,11 @@
           this.createExplosion(this.player.x, this.player.y, '#38b6ff', 12);
         }
       } else {
-        // Sem escudos: Perde uma vida
         this.player.lives--;
         this.audio.playExplosion(true);
         this.createExplosion(this.player.x, this.player.y, '#ef4444', 24);
         this.player.shields = this.player.maxShields;
-        this.player.invulnerableUntil = performance.now() + 2000; // 2s de invulnerabilidade
+        this.player.invulnerableUntil = performance.now() + 2000;
         this.updateHud();
 
         if (this.player.lives <= 0) {
@@ -1241,7 +1244,7 @@
     }
 
     // -------------------------------------------------------------
-    // Renderização do Canvas (Nave, Frotas, Tiros, Propulsores)
+    // Renderização do Canvas
     // -------------------------------------------------------------
     draw() {
       // 1. Fundo Espacial 3D e Horizonte do Planeta
@@ -1270,7 +1273,6 @@
         this.ctx.strokeStyle = '#94a3b8';
         this.ctx.lineWidth = 2;
         this.ctx.beginPath();
-        // Desenho poligonal irregular de asteroide
         const r = ast.radius;
         this.ctx.moveTo(r, 0);
         this.ctx.lineTo(r * 0.7, r * 0.8);
@@ -1314,7 +1316,7 @@
       this.ctx.restore();
 
       // 7. Nave do Jogador (Blue Fox Starfighter)
-      if (this.state === 'PLAYING') {
+      if (this.state === 'PLAYING' || this.state === 'PAUSED') {
         this.drawPlayerShip();
       }
 
@@ -1337,12 +1339,11 @@
 
       this.ctx.save();
 
-      // Efeito de piscar durante invulnerabilidade pós-dano
       if (isInvul && Math.floor(performance.now() / 100) % 2 === 0) {
         this.ctx.globalAlpha = 0.35;
       }
 
-      // Jato Propulsor Duplo (Chamas azuis animadas em direção para trás = voo para frente!)
+      // Jato Propulsor Duplo (Chamas animadas para trás = voo para frente!)
       const flameH = (Math.random() * 12 + 16) * (this.isWarping ? 3.5 : 1.0);
       const thrusterGrad = this.ctx.createLinearGradient(px, py + 16, px, py + 16 + flameH);
       thrusterGrad.addColorStop(0, '#ffffff');
@@ -1351,13 +1352,12 @@
       thrusterGrad.addColorStop(1, 'transparent');
 
       this.ctx.fillStyle = thrusterGrad;
-      // Propulsor esquerdo
       this.ctx.beginPath();
       this.ctx.moveTo(px - 12, py + 16);
       this.ctx.lineTo(px - 8, py + 16 + flameH);
       this.ctx.lineTo(px - 4, py + 16);
       this.ctx.fill();
-      // Propulsor direito
+
       this.ctx.beginPath();
       this.ctx.moveTo(px + 4, py + 16);
       this.ctx.lineTo(px + 8, py + 16 + flameH);
@@ -1365,7 +1365,6 @@
       this.ctx.fill();
 
       // Fuselagem da Blue Fox Starfighter
-      // Asas
       this.ctx.fillStyle = '#1e3a8a';
       this.ctx.strokeStyle = '#38b6ff';
       this.ctx.lineWidth = 2;
@@ -1380,7 +1379,7 @@
       this.ctx.fill();
       this.ctx.stroke();
 
-      // Cabine do Piloto (Cockpit de Vidro Azul Fluorescente)
+      // Cabine do Piloto
       this.ctx.fillStyle = '#38b6ff';
       this.ctx.beginPath();
       this.ctx.moveTo(px, py - 14);
@@ -1390,7 +1389,7 @@
       this.ctx.closePath();
       this.ctx.fill();
 
-      // Orelhas da Raposa Azul estilizadas na nave
+      // Orelhas da Raposa Azul
       this.ctx.fillStyle = '#f59e0b';
       this.ctx.beginPath();
       this.ctx.moveTo(px - 7, py - 6);
@@ -1404,7 +1403,7 @@
       this.ctx.lineTo(px + 5, py - 10);
       this.ctx.fill();
 
-      // Campo de Força de Plasma (se tiver escudos ativos)
+      // Campo de Força de Plasma
       if (this.player.shields > 0) {
         this.ctx.strokeStyle = 'rgba(56, 182, 255, 0.4)';
         this.ctx.lineWidth = 1.5;
@@ -1428,7 +1427,6 @@
       this.ctx.lineWidth = 1;
 
       if (alien.type === 'vanguard') {
-        // Bio-dreadnought com presas frontais
         this.ctx.beginPath();
         this.ctx.moveTo(ax + w / 2, ay + h);
         this.ctx.lineTo(ax + w, ay);
@@ -1438,11 +1436,10 @@
         this.ctx.lineTo(ax, ay);
         this.ctx.closePath();
         this.ctx.fill();
-        // Núcleo pulsante
+
         this.ctx.fillStyle = '#ffedd5';
         this.ctx.fillRect(ax + w / 2 - 2, ay + h * 0.4, 4, 4);
       } else if (alien.type === 'interceptor') {
-        // Interceptador com asas em delta invertido
         this.ctx.beginPath();
         this.ctx.moveTo(ax + w / 2, ay);
         this.ctx.lineTo(ax + w, ay + h * 0.7);
@@ -1453,7 +1450,6 @@
         this.ctx.closePath();
         this.ctx.fill();
       } else {
-        // Scout ágil clássico
         this.ctx.beginPath();
         this.ctx.arc(ax + w / 2, ay + h / 2, w / 2.6, 0, Math.PI * 2);
         this.ctx.fill();
@@ -1472,20 +1468,17 @@
       const w = boss.width;
       const h = boss.height;
 
-      // Barra de Vida do Chefe no topo
       this.ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
       this.ctx.fillRect(bx, by - 14, w, 6);
       const hpRatio = Math.max(0, boss.hp / boss.maxHp);
       this.ctx.fillStyle = hpRatio > 0.4 ? '#ef4444' : '#f59e0b';
       this.ctx.fillRect(bx, by - 14, w * hpRatio, 6);
 
-      // Nome do Chefe
       this.ctx.font = 'bold 10px monospace';
       this.ctx.fillStyle = '#e2e8f0';
       this.ctx.textAlign = 'center';
       this.ctx.fillText(boss.name, bx + w / 2, by - 18);
 
-      // Corpo da Nave-Mãe / Coletor Solar
       const grad = this.ctx.createLinearGradient(bx, by, bx + w, by + h);
       grad.addColorStop(0, '#7f1d1d');
       grad.addColorStop(0.5, '#dc2626');
@@ -1505,7 +1498,6 @@
       this.ctx.fill();
       this.ctx.stroke();
 
-      // Canhões de Plasma Laterais
       this.ctx.fillStyle = '#f59e0b';
       this.ctx.fillRect(bx + 10, by + h - 8, 8, 12);
       this.ctx.fillRect(bx + w - 18, by + h - 8, 8, 12);
@@ -1530,13 +1522,16 @@
       const s = this.currentStage;
       const nextStageId = s.id + 1;
 
-      // Desbloqueia próximo estágio e upgrade
       if (!this.saveData.completedStages.includes(s.id)) {
         this.saveData.completedStages.push(s.id);
       }
 
-      if (s.unlocksUpgrade && !this.saveData.unlockedUpgrades.includes(s.unlocksUpgrade.key)) {
-        this.saveData.unlockedUpgrades.push(s.unlocksUpgrade.key);
+      const upgrade = s.unlockUpgrade || s.unlocksUpgrade;
+      if (upgrade) {
+        const uKey = upgrade.id || upgrade.key;
+        if (!this.saveData.unlockedUpgrades.includes(uKey)) {
+          this.saveData.unlockedUpgrades.push(uKey);
+        }
       }
 
       if (nextStageId <= this.stages.length && this.saveData.highestStageUnlocked < nextStageId) {
@@ -1551,7 +1546,6 @@
       this.applyUpgrades();
       this.renderSolarMap();
 
-      // Configurar Modal de Vitória
       const isFinalStage = s.id === this.stages.length;
 
       this.ui.victoryTitle.textContent = isFinalStage
@@ -1560,19 +1554,19 @@
 
       this.ui.victorySubtitle.textContent = isFinalStage
         ? 'O Sistema Solar está seguro e a Horda do Vazio foi repelida!'
-        : `A rota para o próximo corpo celeste foi liberada com sucesso.`;
+        : 'A rota para o próximo corpo celeste foi liberada com sucesso.';
 
       this.ui.victoryText.textContent = isFinalStage
         ? this.story.GLOBAL_STORY.epilogue.join('\n')
-        : `Pontuação nesta defesa: ${this.score} pts.\nParabéns Comandante, os sensores de longo alcance confirmam retirada inimiga nesta órbita!`;
+        : `Pontuação nesta defesa: ${this.score} pts.\nParabéns Comandante, os sensores confirmam retirada inimiga nesta órbita!`;
 
-      if (s.unlocksUpgrade) {
+      if (upgrade) {
         this.ui.victoryUpgradeBox.hidden = false;
         this.ui.victoryUpgradeBox.innerHTML = `
-          <div class="reward-icon">${s.unlocksUpgrade.icon}</div>
+          <div class="reward-icon">${upgrade.icon || '⚡'}</div>
           <div class="reward-info">
-            <h4>UPGRADE DESBLOQUEADO: ${s.unlocksUpgrade.name}</h4>
-            <p>${s.unlocksUpgrade.desc}</p>
+            <h4>UPGRADE DESBLOQUEADO: ${upgrade.name}</h4>
+            <p>${upgrade.description || upgrade.desc || ''}</p>
           </div>
         `;
         this.audio.playPowerupChime();
@@ -1626,19 +1620,20 @@
 
       this.hideAllScreens();
       this.ui.briefingBadge.textContent = `FASE ${s.id} DE 11`;
-      this.ui.briefingCoords.textContent = `${s.distanceAU.toFixed(2)} AU (${s.distanceFromSun})`;
+      this.ui.briefingCoords.textContent = `${this.formatAU(s.distanceAU)} (${s.celestialBody || s.name})`;
       this.ui.briefingTitle.textContent = s.name;
       this.ui.briefingCodename.textContent = `Operação: ${s.codename}`;
-      this.ui.briefingStory.textContent = s.story;
+      this.ui.briefingStory.textContent = s.briefing || s.story || '';
       this.ui.briefingPilotLog.textContent = `"${s.pilotLog}"`;
 
-      if (s.unlocksUpgrade) {
+      const upgrade = s.unlockUpgrade || s.unlocksUpgrade;
+      if (upgrade) {
         this.ui.briefingReward.hidden = false;
         this.ui.briefingReward.innerHTML = `
-          <div class="reward-icon">${s.unlocksUpgrade.icon}</div>
+          <div class="reward-icon">${upgrade.icon || '⚡'}</div>
           <div class="reward-info">
-            <h4>Recompensa de Vitória: ${s.unlocksUpgrade.name}</h4>
-            <p>${s.unlocksUpgrade.desc}</p>
+            <h4>Recompensa de Vitória: ${upgrade.name}</h4>
+            <p>${upgrade.description || upgrade.desc || ''}</p>
           </div>
         `;
       } else {
@@ -1673,13 +1668,13 @@
 
         card.innerHTML = `
           <div class="stage-solar-header">
-            <span class="stage-solar-num">#${stage.id} · ${stage.distanceAU.toFixed(2)} AU</span>
+            <span class="stage-solar-num">#${stage.id} · ${this.formatAU(stage.distanceAU)}</span>
             <span>${isCompleted ? '⭐' : isLocked ? '🔒' : '🚀'}</span>
           </div>
           <h3 class="stage-solar-name">${stage.name}</h3>
           <div class="stage-solar-codename">${stage.codename}</div>
           ${
-            stage.wave.boss
+            stage.wave && stage.wave.boss
               ? `<span style="font-size:0.7rem; color:#ef4444; font-weight:bold;">⚔️ CHEFÃO</span>`
               : ''
           }
@@ -1699,18 +1694,16 @@
       if (!this.currentStage) return;
 
       this.ui.hudStageName.textContent = this.currentStage.name;
-      this.ui.hudCoords.textContent = `${this.currentStage.distanceAU.toFixed(2)} AU`;
+      this.ui.hudCoords.textContent = this.formatAU(this.currentStage.distanceAU);
       this.ui.hudWave.textContent = `Fase ${this.currentStage.id}/11`;
       this.ui.hudScore.textContent = this.score.toString().padStart(6, '0');
 
-      // Vidas representadas por naves
       let livesIcons = '';
       for (let i = 0; i < this.player.lives; i++) {
         livesIcons += '🚀 ';
       }
       this.ui.hudLives.textContent = livesIcons || '💀';
 
-      // Barra de Escudo de Plasma
       const shieldPct = Math.max(0, Math.min(100, (this.player.shields / this.player.maxShields) * 100));
       this.ui.hudShieldsFill.style.width = `${shieldPct}%`;
       if (shieldPct < 30) {
@@ -1719,7 +1712,6 @@
         this.ui.hudShieldsFill.style.background = 'linear-gradient(90deg, var(--hud-cyan), var(--hud-violet))';
       }
 
-      // Bombas
       this.ui.hudBombs.textContent = this.player.bombs;
     }
 
@@ -1765,6 +1757,14 @@
       }
 
       // Botões de Menus e Modais
+      if (this.ui.btnPlayNow) {
+        this.ui.btnPlayNow.onclick = () => {
+          this.saveData.hasSeenIntro = true;
+          this.saveProgress();
+          this.startStage(0);
+        };
+      }
+
       this.ui.btnSkipCrawl.onclick = () => {
         this.saveData.hasSeenIntro = true;
         this.saveProgress();
