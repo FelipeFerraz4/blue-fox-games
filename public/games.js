@@ -45,4 +45,24 @@ window.BF_GAMES = [
       'Atinja 12 ou mais pulsos para entrar no ranking de Mestres do Pulso!',
     ],
   },
+  {
+    id: 'defense',
+    title: 'Milky Way Defense',
+    emoji: '🌌',
+    cover: ['🚀', '🌍', '☀️', '🪐', '☄️', '👾'],
+    href: '/defense',
+    status: 'available',
+    modes: ['single'],
+    tags: ['Solo', 'Campanha 11 Fases', 'Espaço & Upgrades', 'Voo 3D'],
+    players: '1 jogador',
+    duration: '5–15 min',
+    description:
+      'Defenda o Sistema Solar e a Via Láctea a bordo da Blue Fox Starfighter. Enfrente a armada bio-alienígena em 11 fases cósmicas que partem da Terra até o Cinturão de Kuiper!',
+    rules: [
+      'Campanha Solo do Sistema Solar: 11 fases narrativas com história estelar da Terra ao Cinturão de Kuiper.',
+      'Defenda os planetas, enfrente a forja solar no Sol e atravesse os 2 cinturões de asteroides.',
+      'Desbloqueie upgrades vitais: Laser Duplo, Laser Triplo, Escudo de Plasma, Canhões Rápidos e Bombas de Antimatéria.',
+      'Efeito de voo para frente com estrelas 3D e aproximação planetária no horizonte.',
+    ],
+  },
 ];

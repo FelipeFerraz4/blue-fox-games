@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Milky Way Defense (Defesa da Via Láctea) · Blue Fox Games</title>
+    <meta
+      name="description"
+      content="Defenda o Sistema Solar e a Via Láctea a bordo da Blue Fox Starfighter contra a armada alienígena invasora. 11 fases cósmicas da Terra ao Cinturão de Kuiper com upgrades progressivos!"
+    />
+    <link rel="icon" type="image/png" href="/Favicon_logo5.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/site.css" />
+    <link rel="stylesheet" href="/defense.css" />
+  </head>
+  <body class="defense-page">
+    <div class="defense-layout">
+      <!-- Barra Superior de Navegação -->
+      <header class="defense-nav">
+        <div class="defense-nav-left">
+          <a href="/jogos" class="defense-back-link" title="Voltar ao Catálogo de Jogos">
+            <span>←</span> Jogos
+          </a>
+          <div class="defense-brand">
+            <span>🌌</span>
+            <span>Milky Way Defense</span>
+          </div>
+        </div>
+        <div class="defense-nav-right">
+          <button id="btnMapToggle" class="defense-icon-btn" title="Mapa do Sistema Solar">
+            <span>🗺️</span> <span>Sistema Solar</span>
+          </button>
+          <button id="btnPauseToggle" class="defense-icon-btn" title="Pausar / Continuar">
+            <span>⏸️</span>
+          </button>
+          <button id="btnSoundToggle" class="defense-icon-btn" title="Alternar Som">
+            <span>🔊</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Viewport Principal de Combate Espacial -->
+      <main class="game-viewport-container">
+        <!-- HUD Superior do Cockpit -->
+        <div class="cockpit-hud-top">
+          <div class="hud-item">
+            <span class="hud-label">Destino</span>
+            <span id="hudStageName" class="hud-value highlight">Planeta Terra</span>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">Distância</span>
+            <span id="hudCoords" class="hud-value">1.00 AU</span>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">Fase</span>
+            <span id="hudWave" class="hud-value">Fase 1/11</span>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">Pontuação</span>
+            <span id="hudScore" class="hud-value highlight">000000</span>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">Vidas</span>
+            <span id="hudLives" class="hud-lives">🚀 🚀 🚀</span>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">Escudo de Plasma</span>
+            <div class="hud-shields-bar">
+              <div id="hudShieldsFill" class="hud-shields-fill"></div>
+            </div>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">Bomba (B)</span>
+            <span id="hudBombs" class="hud-value highlight">1</span>
+          </div>
+        </div>
+
+        <!-- Canvas de Voo Cósmico e Combate -->
+        <div class="canvas-wrapper">
+          <canvas id="defenseCanvas" width="800" height="600"></canvas>
+
+          <!-- OVERLAY 1: Prólogo / História Estelar (Star Wars Style) -->
+          <div id="screenCrawl" class="overlay-screen" hidden>
+            <div class="crawl-container">
+              <div class="crawl-content">
+                <div class="crawl-title">MILKY WAY DEFENSE</div>
+                <div class="crawl-stardate">DATA ESTELAR 2525.4 · RELATÓRIO DO COMANDO DA FROTA</div>
+                <div id="crawlTextContainer"></div>
+              </div>
+            </div>
+            <div class="crawl-controls">
+              <button id="btnSkipCrawl" class="btn-defense-primary">Pular Introdução (Acessar Missões)</button>
+            </div>
+          </div>
+
+          <!-- OVERLAY 2: Briefing da Fase e Relatório de Voo -->
+          <div id="screenBriefing" class="overlay-screen" hidden>
+            <div class="briefing-box">
+              <div class="briefing-header">
+                <span id="briefingStageBadge" class="briefing-badge">FASE 1 DE 11</span>
+                <span id="briefingCoords" class="briefing-coords">1.00 AU da Terra</span>
+              </div>
+              <h2 id="briefingTitle" class="briefing-title">Planeta Terra</h2>
+              <div id="briefingCodename" class="briefing-codename">Operação: A Resistência Orbital</div>
+              <p id="briefingStory" class="briefing-text"></p>
+              <div id="briefingPilotLog" class="briefing-pilot-quote"></div>
+              <div id="briefingRewardContainer" class="briefing-reward-box" hidden></div>
+              <div style="display: flex; gap: 12px; margin-top: 16px;">
+                <button id="btnLaunchStage" class="btn-defense-primary">Decolar para Combate 🚀</button>
+                <button id="btnBackToMapFromBriefing" class="btn-defense-secondary">Mapa do Sistema Solar</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- OVERLAY 3: Mapa do Sistema Solar (Seletor de Fases) -->
+          <div id="screenSolarMap" class="overlay-screen" hidden>
+            <div class="solar-map-container">
+              <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.6rem; margin: 0 0 6px 0; color: #fff;">
+                🗺️ Campanha de Defesa do Sistema Solar
+              </h2>
+              <p style="font-size: 0.9rem; color: #94a3b8; margin: 0 0 16px 0;">
+                A ordem de contenção inicia na Terra, desce até o Sol para proteger nossa estrela, e avança através dos
+                dois cinturões de asteroides até os confins de Kuiper.
+              </p>
+              <div id="solarStagesList" class="solar-stages-list"></div>
+              <div style="display: flex; gap: 12px; justify-content: center; margin-top: 16px; flex-wrap: wrap;">
+                <button id="btnResumeFromMap" class="btn-defense-primary">Entrar na Fase Selecionada</button>
+                <button id="btnShowCrawl" class="btn-defense-secondary">📜 Rever História Completa</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- OVERLAY 4: Vitória da Fase / Epílogo -->
+          <div id="screenVictory" class="overlay-screen" hidden>
+            <div class="briefing-box" style="text-align: center;">
+              <h2 id="victoryTitle" class="briefing-title" style="color: var(--hud-cyan);">✨ VITÓRIA NA ÓRBITA!</h2>
+              <div id="victorySubtitle" class="briefing-codename">A armada inimiga neste setor foi aniquilada.</div>
+              <p id="victoryText" class="briefing-text" style="white-space: pre-line;"></p>
+              <div id="victoryUpgradeBox" class="briefing-reward-box" hidden></div>
+              <div style="display: flex; gap: 12px; justify-content: center; margin-top: 20px;">
+                <button id="btnNextStage" class="btn-defense-primary">Próxima Fase Cósmica 🛸</button>
+                <button id="btnVictoryMap" class="btn-defense-secondary">Mapa do Sistema Solar</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- OVERLAY 5: Fim de Jogo (Game Over) -->
+          <div id="screenGameOver" class="overlay-screen" hidden>
+            <div class="briefing-box" style="text-align: center;">
+              <h2 class="briefing-title" style="color: var(--hud-danger);">💥 NAVE DESTRUÍDA</h2>
+              <div class="briefing-codename">A linha de defesa do Sistema Solar foi comprometida.</div>
+              <p id="gameOverScore" class="briefing-text">Pontuação final: 000000</p>
+              <div style="display: flex; gap: 12px; justify-content: center; margin-top: 20px;">
+                <button id="btnRetryStage" class="btn-defense-primary">Tentar Novamente 🔄</button>
+                <button id="btnGameOverMap" class="btn-defense-secondary">Retornar ao Mapa</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- OVERLAY 6: Pausa -->
+          <div id="screenPause" class="overlay-screen" hidden>
+            <div class="briefing-box" style="text-align: center; max-width: 400px;">
+              <h2 class="briefing-title">⏸️ MISSÃO EM PAUSA</h2>
+              <p class="briefing-text">Sistemas da Starfighter aguardando comando.</p>
+              <div style="display: flex; gap: 12px; justify-content: center; margin-top: 20px;">
+                <button id="btnResumePause" class="btn-defense-primary">Retomar Combate</button>
+                <button id="btnQuitToMap" class="btn-defense-secondary">Mapa do Sistema Solar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Barra Inferior de Upgrades Ativos -->
+        <div class="cockpit-upgrades-bar">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-weight: 700; color: #fff;">Upgrades da Starfighter:</span>
+            <div id="activeUpgradesList" class="active-upgrades-list"></div>
+          </div>
+          <div style="font-size: 0.75rem; color: #64748b;">
+            Teclado: [A/D ou ←/→] Mover · [Espaço] Atirar · [B] Bomba · [P] Pausar
+          </div>
+        </div>
+
+        <!-- Controles Virtuais Touch (Mobile / Tablet) -->
+        <div class="touch-controls">
+          <div class="touch-dpad">
+            <button id="btnTouchLeft" class="touch-btn" aria-label="Mover para a esquerda">◀</button>
+            <button id="btnTouchRight" class="touch-btn" aria-label="Mover para a direita">▶</button>
+          </div>
+          <div class="touch-actions">
+            <button id="btnTouchBomb" class="touch-btn bomb" aria-label="Bomba Inteligente">💣</button>
+            <button id="btnTouchFire" class="touch-btn fire" aria-label="Disparar Laser">🔥</button>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Scripts de Dados Narrativos e Motor do Jogo -->
+    <script src="/defense-story.js"></script>
+    <script src="/defense-engine.js"></script>
+  </body>
+</html>
