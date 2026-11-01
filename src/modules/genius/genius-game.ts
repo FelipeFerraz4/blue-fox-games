@@ -148,4 +148,4 @@ export class GeniusGame {
   }
 }
 
-export { GeniusGame as PulseGame };
+export { GeniusGame as BeatGame, GeniusGame as PulseGame };

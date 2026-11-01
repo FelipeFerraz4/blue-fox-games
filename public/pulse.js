@@ -1,12 +1,12 @@
-/* Blue Fox Games · Controlador do Jogo Fox Pulse
+/* Blue Fox Games · Controlador do Jogo Fox Beat
  * Interface do console sônico, equalizador, eventos táteis e de teclado.
  */
 (() => {
   'use strict';
 
   const $ = (id) => document.getElementById(id);
-  const { AudioSynth, PulseEngine, loadKeymap, saveKeymap, loadHighScore, saveHighScore, formatKeyDisplay, KEY_PRESETS } =
-    window.BFPulse || window.BFGenius;
+  const { AudioSynth, PulseEngine, BeatEngine, loadKeymap, saveKeymap, loadHighScore, saveHighScore, formatKeyDisplay, KEY_PRESETS } =
+    window.BFBeat || window.BFPulse || window.BFGenius;
 
   // Instâncias
   const synth = new AudioSynth();
@@ -55,9 +55,9 @@
     disableButtons(true);
 
     const speed = engine.getSpeed();
-    setStatus('pulse', `Sintonizando sequência (${engine.sequence.length} ${engine.sequence.length === 1 ? 'pulso' : 'pulsos'})…`);
+    setStatus('pulse', `Sintonizando sequência (${engine.sequence.length} ${engine.sequence.length === 1 ? 'batida' : 'batidas'})…`);
 
-    // Pausa inicial suave antes do primeiro pulso
+    // Pausa inicial suave antes da primeira batida
     await delay(500);
 
     for (let i = 0; i < engine.sequence.length; i++) {

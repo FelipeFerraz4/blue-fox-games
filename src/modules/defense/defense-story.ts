@@ -414,11 +414,5 @@ export const SOLAR_SYSTEM_STAGES: SolarStageStory[] = [
         phases: 3,
       },
     },
-    unlockUpgrade: {
-      id: 'hyper-drive',
-      name: 'Hiper-Propulsão Ômega',
-      icon: '🚀',
-      description: 'Motor de dobra estelar galáctica que permite saltos livres por toda a Via Láctea.',
-    },
   },
 ];

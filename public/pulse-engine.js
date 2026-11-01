@@ -1,4 +1,4 @@
-/* Blue Fox Games · Motor do Jogo Fox Pulse & Sintetizador Web Audio API
+/* Blue Fox Games · Motor do Jogo Fox Beat & Sintetizador Web Audio API
  * Implementação cliente em Vanilla JS sem dependências externas.
  */
 (() => {
@@ -39,8 +39,10 @@
     },
   };
 
-  const STORAGE_KEYMAP = 'bf-games:pulse-keymap';
-  const STORAGE_HIGHSCORE = 'bf-games:pulse-highscore';
+  const STORAGE_KEYMAP = 'bf-games:beat-keymap';
+  const STORAGE_KEYMAP_LEGACY = 'bf-games:pulse-keymap';
+  const STORAGE_HIGHSCORE = 'bf-games:beat-highscore';
+  const STORAGE_HIGHSCORE_LEGACY = 'bf-games:pulse-highscore';
 
   // ---------- Sintetizador de Áudio (Web Audio API) ----------
   class AudioSynth {
@@ -199,15 +201,15 @@
       }
       if (score <= 17) {
         return {
-          tier: 'Mestre do Pulso',
+          tier: 'Mestre do Beat',
           badge: '🦊',
-          message: 'Sensacional! 12 ou mais pulsos memorizados é uma marca de Mestre! Memória de Raposa!',
+          message: 'Sensacional! 12 ou mais batidas memorizadas é uma marca de Mestre! Memória de Raposa!',
         };
       }
       return {
-        tier: 'Lenda do Pulso',
+        tier: 'Lenda do Beat',
         badge: '👑',
-        message: 'Inacreditável! Você tem memória fotográfica e reflexo absoluto! Uma verdadeira Lenda Sônica!',
+        message: 'Inacreditável! Você tem memória fotográfica e reflexo absoluto! Uma verdadeira Lenda do Beat!',
       };
     }
   }
@@ -215,7 +217,7 @@
   // ---------- Gerenciamento de Teclas & LocalStorage ----------
   function loadKeymap() {
     try {
-      const saved = localStorage.getItem(STORAGE_KEYMAP);
+      const saved = localStorage.getItem(STORAGE_KEYMAP) || localStorage.getItem(STORAGE_KEYMAP_LEGACY);
       if (saved) return JSON.parse(saved);
     } catch {}
     return { ...KEY_PRESETS.fghj.keys };
@@ -229,7 +231,7 @@
 
   function loadHighScore() {
     try {
-      return Number(localStorage.getItem(STORAGE_HIGHSCORE)) || 0;
+      return Number(localStorage.getItem(STORAGE_HIGHSCORE) || localStorage.getItem(STORAGE_HIGHSCORE_LEGACY)) || 0;
     } catch {
       return 0;
     }
@@ -258,10 +260,12 @@
   }
 
   // Exportação global moderna
-  window.BFPulse = {
+  window.BFBeat = window.BFPulse = {
+    BEAT_COLORS: PULSE_COLORS,
     PULSE_COLORS,
     KEY_PRESETS,
     AudioSynth,
+    BeatEngine: PulseEngine,
     PulseEngine,
     loadKeymap,
     saveKeymap,

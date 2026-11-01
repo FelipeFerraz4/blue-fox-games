@@ -240,7 +240,7 @@
         height: 42,
         speed: 6.2,
         baseSpeed: 6.2,
-        lives: 3,
+        lives: 1,
         shields: 100,
         maxShields: 100,
         shieldRegenTimer: 0,
@@ -252,6 +252,7 @@
 
       // Frotas Inimigas e Tiros
       this.playerBullets = [];
+      this.bombShots = [];
       this.alienBullets = [];
       this.alienFleet = [];
       this.fleetDirection = 1;
@@ -1156,6 +1157,7 @@
       this.player.y = this.V_HEIGHT - 65;
       this.player.shields = this.player.maxShields;
       this.playerBullets = [];
+      this.bombShots = [];
       this.alienBullets = [];
       this.particles = [];
       this.shockwaves = [];
@@ -1246,6 +1248,7 @@
           width: 100,
           height: 60,
           alive: false,
+          defeated: false,
           shootTimer: 0,
           dir: 1,
         };
@@ -1408,16 +1411,6 @@
         this.keys.bomb = false;
       }
 
-      // 5. Regeneração Lenta de Escudos
-      if (this.player.shields < this.player.maxShields) {
-        this.player.shieldRegenTimer += dt;
-        if (this.player.shieldRegenTimer >= 1.5) {
-          this.player.shields = Math.min(this.player.maxShields, this.player.shields + 3);
-          this.player.shieldRegenTimer = 0;
-          this.updateHud();
-        }
-      }
-
       // 6. Atualizar Tiros do Jogador
       for (let i = this.playerBullets.length - 1; i >= 0; i--) {
         const b = this.playerBullets[i];
@@ -1426,6 +1419,8 @@
           this.playerBullets.splice(i, 1);
         }
       }
+
+      this.updateBombShots();
 
       // 7. Movimentação da Frota Alienígena (Grid Step)
       this.fleetMoveTimer += dt * 1000;
@@ -1491,7 +1486,7 @@
 
         // Colisão asteroide com jogador
         if (ast && Math.hypot(this.player.x - ast.x, this.player.y - ast.y) < ast.radius + 18) {
-          this.hitPlayer(35);
+          this.hitPlayer(34);
           this.audio.playExplosion(true);
           this.createExplosion(ast.x, ast.y, '#f59e0b', 20);
           this.floatingAsteroids.splice(i, 1);
@@ -1518,9 +1513,62 @@
 
       // 13. Checar Condição de Vitória da Fase
       const remainingAliens = this.alienFleet.filter((a) => a.alive).length;
-      if (this.stageTotalAliens > 0 && remainingAliens === 0 && (!this.boss || this.boss.hp <= 0)) {
-        this.triggerHyperWarp();
+      if (this.stageTotalAliens > 0 && remainingAliens === 0) {
+        if (this.boss && !this.boss.alive && !this.boss.defeated) {
+          this.summonBoss();
+        } else if (!this.boss || this.boss.defeated) {
+          this.triggerHyperWarp();
+        }
       }
+    }
+
+    // O chefão só entra depois que a frota inicial cai, trazendo uma nova escolta de naves auxiliares
+    summonBoss() {
+      this.boss.alive = true;
+      this.audio.playExplosion(true);
+
+      const cols = 8;
+      const rows = 3;
+      const alienW = 34;
+      const alienH = 26;
+      const gapX = 18;
+      const gapY = 16;
+      const startX = (this.V_WIDTH - (cols * (alienW + gapX) - gapX)) / 2;
+      const startY = 170;
+      let idCounter = this.alienFleet.length;
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const vanguard = r === 0;
+          this.alienFleet.push({
+            id: ++idCounter,
+            x: startX + c * (alienW + gapX),
+            y: startY + r * (alienH + gapY),
+            width: alienW,
+            height: alienH,
+            type: vanguard ? 'vanguard' : 'interceptor',
+            points: vanguard ? 150 : 100,
+            color: vanguard ? '#ef4444' : '#8b5cf6',
+            hp: vanguard ? 2 : 1,
+            alive: true,
+            frame: 0,
+          });
+        }
+      }
+
+      this.stageTotalAliens += rows * cols;
+      this.fleetDirection = 1;
+      this.fleetStepDownNeeded = false;
+      this.updateHud();
+    }
+
+    defeatBoss() {
+      this.boss.hp = 0;
+      this.boss.alive = false;
+      this.boss.defeated = true;
+      this.audio.playExplosion(true);
+      this.createExplosion(this.boss.x + this.boss.width / 2, this.boss.y + this.boss.height / 2, '#f59e0b', 35);
+      this.score += 2000;
     }
 
     // -------------------------------------------------------------
@@ -1551,29 +1599,61 @@
     triggerSmartBomb() {
       this.player.bombs--;
       this.audio.playSmartBomb();
-      this.shockwaves.push({
-        x: this.player.x,
-        y: this.player.y,
-        radius: 10,
-        maxRadius: 500,
-        speed: 600,
-        color: '#f59e0b',
-      });
+      this.bombShots.push({ x: this.player.x, y: this.player.y - 20, width: 16, height: 22, speed: 6 });
+      this.updateHud();
+    }
 
-      this.alienBullets = [];
+    updateBombShots() {
+      for (let i = this.bombShots.length - 1; i >= 0; i--) {
+        const bomb = this.bombShots[i];
+        bomb.y -= bomb.speed;
+
+        const box = { x: bomb.x - bomb.width / 2, y: bomb.y - bomb.height / 2, width: bomb.width, height: bomb.height };
+        const hitAlien = this.alienFleet.some((a) => a.alive && this.checkCollision(box, a));
+        const hitBoss =
+          this.boss && this.boss.alive && this.boss.hp > 0 && this.checkCollision(box, this.boss);
+        const hitAsteroid = this.floatingAsteroids.some(
+          (ast) => Math.hypot(bomb.x - ast.x, bomb.y - ast.y) < ast.radius + 10,
+        );
+
+        if (hitAlien || hitBoss || hitAsteroid || bomb.y < 0) {
+          this.bombShots.splice(i, 1);
+          this.explodeBomb(bomb.x, bomb.y);
+        }
+      }
+    }
+
+    // Explosão em área equivalente a um quadrado 3x3 de naves (uma fileira/coluna de cada lado)
+    explodeBomb(x, y) {
+      const reachX = 60;
+      const reachY = 50;
+
+      this.audio.playExplosion(true);
+      this.shockwaves.push({ x, y, radius: 10, maxRadius: 80, speed: 200, color: '#f59e0b' });
 
       this.alienFleet.forEach((alien) => {
-        if (alien.alive) {
+        if (!alien.alive) return;
+        const cx = alien.x + alien.width / 2;
+        const cy = alien.y + alien.height / 2;
+        if (Math.abs(cx - x) > reachX || Math.abs(cy - y) > reachY) return;
+
+        alien.hp -= 2;
+        if (alien.hp <= 0) {
           alien.alive = false;
           this.stageKillCount++;
           this.score += alien.points;
-          this.createExplosion(alien.x + alien.width / 2, alien.y + alien.height / 2, alien.color, 12);
         }
+        this.createExplosion(cx, cy, alien.color, 12);
       });
 
-      if (this.boss && this.boss.alive) {
-        this.boss.hp = Math.max(0, this.boss.hp - 15);
-        this.createExplosion(this.boss.x + this.boss.width / 2, this.boss.y + this.boss.height / 2, '#f59e0b', 24);
+      if (this.boss && this.boss.alive && this.boss.hp > 0) {
+        const cx = this.boss.x + this.boss.width / 2;
+        const cy = this.boss.y + this.boss.height / 2;
+        if (Math.abs(cx - x) <= reachX + this.boss.width / 2 && Math.abs(cy - y) <= reachY + this.boss.height / 2) {
+          this.boss.hp = Math.max(0, this.boss.hp - 4);
+          this.createExplosion(cx, cy, '#f59e0b', 24);
+          if (this.boss.hp <= 0) this.defeatBoss();
+        }
       }
 
       this.updateHud();
@@ -1618,10 +1698,6 @@
         this.fleetStepInterval = Math.max(120, 200 + ratio * 450);
       }
 
-      if (this.boss && !this.boss.alive && aliveCount <= Math.max(2, this.stageTotalAliens * 0.25)) {
-        this.boss.alive = true;
-        this.audio.playExplosion(true);
-      }
     }
 
     alienShoot() {
@@ -1638,7 +1714,7 @@
         height: 12,
         speed: bulletSpd,
         color: '#ef4444',
-        damage: 22,
+        damage: 20,
       });
 
       this.audio.playAlienLaser();
@@ -1668,8 +1744,8 @@
           const bx = this.boss.x + this.boss.width / 2;
           const by = this.boss.y + this.boss.height;
 
-          this.alienBullets.push({ x: bx - 25, y: by, width: 6, height: 16, speed: 4.8, color: '#f59e0b', damage: 30 });
-          this.alienBullets.push({ x: bx + 25, y: by, width: 6, height: 16, speed: 4.8, color: '#f59e0b', damage: 30 });
+          this.alienBullets.push({ x: bx - 25, y: by, width: 6, height: 16, speed: 4.8, color: '#f59e0b', damage: 25 });
+          this.alienBullets.push({ x: bx + 25, y: by, width: 6, height: 16, speed: 4.8, color: '#f59e0b', damage: 25 });
           this.audio.playAlienLaser();
         }
       }
@@ -1695,12 +1771,7 @@
             this.createSparks(b.x, b.y, '#f59e0b', 4);
             this.playerBullets.splice(i, 1);
 
-            if (this.boss.hp <= 0) {
-              this.audio.playExplosion(true);
-              this.createExplosion(this.boss.x + this.boss.width / 2, this.boss.y + this.boss.height / 2, '#f59e0b', 35);
-              this.score += 2000;
-              this.triggerHyperWarp();
-            }
+            if (this.boss.hp <= 0) this.defeatBoss();
             this.updateHud();
             continue;
           }
@@ -1742,23 +1813,14 @@
       this.audio.playShieldHit();
       this.createSparks(this.player.x, this.player.y, '#38b6ff', 8);
 
-      if (this.player.shields > 0) {
-        this.player.shields = Math.max(0, this.player.shields - damage);
-        this.updateHud();
-        if (this.player.shields <= 0) {
-          this.createExplosion(this.player.x, this.player.y, '#38b6ff', 12);
-        }
-      } else {
-        this.player.lives--;
+      this.player.shields = Math.max(0, this.player.shields - damage);
+      this.updateHud();
+
+      if (this.player.shields <= 0) {
+        this.player.lives = 0;
         this.audio.playExplosion(true);
         this.createExplosion(this.player.x, this.player.y, '#ef4444', 24);
-        this.player.shields = this.player.maxShields;
-        this.player.invulnerableUntil = performance.now() + 2000;
-        this.updateHud();
-
-        if (this.player.lives <= 0) {
-          this.gameOver();
-        }
+        this.gameOver();
       }
     }
 
@@ -1888,6 +1950,15 @@
         this.ctx.shadowColor = b.color;
         this.ctx.shadowBlur = 8;
         this.ctx.fillRect(b.x - 2, b.y, 4, 14);
+      }
+
+      for (const bomb of this.bombShots) {
+        this.ctx.fillStyle = '#f59e0b';
+        this.ctx.shadowColor = '#f59e0b';
+        this.ctx.shadowBlur = 16;
+        this.ctx.beginPath();
+        this.ctx.ellipse(bomb.x, bomb.y, bomb.width / 2, bomb.height / 2, 0, 0, Math.PI * 2);
+        this.ctx.fill();
       }
 
       for (const b of this.alienBullets) {
@@ -2141,7 +2212,7 @@
 
       this.ui.victoryText.textContent = isFinalStage
         ? this.story.GLOBAL_STORY.epilogue.join('\n')
-        : `Pontuação nesta defesa: ${this.score} pts.\nParabéns Comandante, os sensores confirmam retirada inimiga nesta órbita!`;
+        : `Pontuação: ${this.score} pts`;
 
       if (upgrade) {
         this.ui.victoryUpgradeBox.hidden = false;
@@ -2157,6 +2228,11 @@
         this.ui.victoryUpgradeBox.hidden = true;
       }
 
+      // Tela única entre fases: o botão já decola para a próxima, sem passar pelo briefing
+      const nextStage = this.stages[this.currentStageIndex + 1];
+      if (nextStage) {
+        this.ui.btnNextStage.textContent = `Decolar para Fase ${nextStage.id}: ${nextStage.name} 🚀`;
+      }
       this.ui.btnNextStage.hidden = isFinalStage;
       this.hideAllScreens();
       this.ui.screenVictory.hidden = false;
@@ -2209,19 +2285,7 @@
       this.ui.briefingStory.textContent = s.briefing || s.story || '';
       this.ui.briefingPilotLog.textContent = `"${s.pilotLog}"`;
 
-      const upgrade = s.unlockUpgrade || s.unlocksUpgrade;
-      if (upgrade) {
-        this.ui.briefingReward.hidden = false;
-        this.ui.briefingReward.innerHTML = `
-          <div class="reward-icon">${upgrade.icon || '⚡'}</div>
-          <div class="reward-info">
-            <h4>Recompensa de Vitória: ${upgrade.name}</h4>
-            <p>${upgrade.description || upgrade.desc || ''}</p>
-          </div>
-        `;
-      } else {
-        this.ui.briefingReward.hidden = true;
-      }
+      this.ui.briefingReward.hidden = true;
 
       this.ui.screenBriefing.hidden = false;
     }
@@ -2281,18 +2345,14 @@
       this.ui.hudWave.textContent = `Fase ${this.currentStage.id}/11`;
       this.ui.hudScore.textContent = this.score.toString().padStart(6, '0');
 
-      let livesIcons = '';
-      for (let i = 0; i < this.player.lives; i++) {
-        livesIcons += '🚀 ';
-      }
-      this.ui.hudLives.textContent = livesIcons || '💀';
-
       const shieldPct = Math.max(0, Math.min(100, (this.player.shields / this.player.maxShields) * 100));
       this.ui.hudShieldsFill.style.width = `${shieldPct}%`;
-      if (shieldPct < 30) {
-        this.ui.hudShieldsFill.style.background = 'var(--hud-danger)';
+      if (shieldPct > 60) {
+        this.ui.hudShieldsFill.style.background = 'var(--hud-cyan)';
+      } else if (shieldPct > 30) {
+        this.ui.hudShieldsFill.style.background = 'var(--hud-amber)';
       } else {
-        this.ui.hudShieldsFill.style.background = 'linear-gradient(90deg, var(--hud-cyan), var(--hud-violet))';
+        this.ui.hudShieldsFill.style.background = 'var(--hud-danger)';
       }
 
       this.ui.hudBombs.textContent = this.player.bombs;
@@ -2372,7 +2432,7 @@
 
       this.ui.btnNextStage.onclick = () => {
         if (this.currentStageIndex < this.stages.length - 1) {
-          this.showBriefing(this.currentStageIndex + 1);
+          this.startStage(this.currentStageIndex + 1);
         } else {
           this.showSolarMap();
         }
@@ -2383,7 +2443,7 @@
       };
 
       this.ui.btnRetryStage.onclick = () => {
-        this.player.lives = 3;
+        this.player.lives = 1;
         this.player.bombs = 1;
         this.startStage(this.currentStageIndex);
       };

@@ -260,7 +260,7 @@ input:focus, select:focus { outline: none; border-color: var(--brand-light); box
 }
 .card .back {
   background:
-    url('/Favicon_logo5.png') center / 46% no-repeat,
+    url('/bluefox-games-logo.png') center / 46% no-repeat,
     var(--gradient-games);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 6px 16px rgba(0, 20, 60, 0.4);
@@ -1043,7 +1043,7 @@ input:focus, select:focus { outline: none; border-color: var(--brand-light); box
   }
   .card .back {
     background:
-      url('/Favicon_logo5.png') center / auto 80% no-repeat,
+      url('/bluefox-games-logo.png') center / auto 80% no-repeat,
       var(--gradient-games);
   }
   .card .front {

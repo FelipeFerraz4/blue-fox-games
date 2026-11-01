@@ -68,4 +68,8 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml --env-file .env.d
 docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.prod up -d --build
 ```
 
+## Deploy automático
+
+Fluxo: trabalhe em `develop` → PR `develop` → `main`. O workflow `.github/workflows/quality-gate.yml` roda no PR (audit, testes, build e `docker build --target runner`) e, ao fazer merge na `main`, entra via SSH na VPS e recria o container com `docker-compose.prod.yml`. Secrets do repo: `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` e, opcionais, `VPS_PORT` e `VPS_GAMES_APP_PATH`. Na VPS o repo deve estar em `~/apps/blue-fox/blue-fox-games` com o `.env.prod` já criado. O CI usa Node 22 (igual ao Dockerfile) por causa do lockfile.
+
 Para jogar com alguém fora da sua rede sem deploy, use um túnel temporário (ver README).
