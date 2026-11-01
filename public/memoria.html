@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Jogo da Memória · Blue Fox Games</title>
-  <link rel="icon" href="/Favicon_logo5.png" type="image/png" />
+  <link rel="icon" href="/bluefox-games-favicon.png" type="image/png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
@@ -17,12 +17,86 @@
   <main>
     <div class="status-row"><span class="conn" id="conn" data-state="connecting">Conectando…</span></div>
 
-    <!-- Tela inicial: criar ou entrar -->
+    <!-- Tela inicial: Modo Solo ou 1x1 Online -->
     <section id="screen-home" class="screen home">
       <h1>Jogo da Memória</h1>
-      <p class="lead">Desafie alguém em qualquer lugar. Crie uma sala e envie o link.</p>
+      <p class="lead" id="home-lead">Jogue a campanha solo, dispute contra a Raposa ou desafie um amigo online.</p>
 
-      <div class="panel">
+      <!-- Abas de Navegação Principal -->
+      <div class="mode-tabs" role="tablist">
+        <button type="button" class="mode-tab active active-games" id="tab-solo">
+          <span>🎮</span> Modo Solo
+        </button>
+        <button type="button" class="mode-tab" id="tab-online">
+          <span>🌐</span> 1x1 Online
+        </button>
+      </div>
+
+      <!-- PAINEL 1: MODO SOLO & CAMPANHA -->
+      <div id="panel-solo" class="panel">
+        <div class="solo-subtabs" role="tablist">
+          <button type="button" class="solo-subtab active" id="subtab-campaign">🗺️ Jornada das Fases (17 Fases)</button>
+          <button type="button" class="solo-subtab" id="subtab-freeplay">⚡ Partida Livre (4 Níveis)</button>
+        </div>
+
+        <!-- Visão 1: Jornada / Campanha -->
+        <div id="view-campaign" class="campaign-container">
+          <!-- Renderizado dinamicamente via JS com os 4 Mundos e 17 Fases (com Fase Bônus) -->
+        </div>
+
+        <!-- Visão 2: Partida Livre -->
+        <div id="view-freeplay" class="free-play-box" hidden>
+          <div class="level-picker-title">1. Escolha a Dificuldade</div>
+          <div class="free-levels-grid" id="free-levels-grid">
+            <div class="level-card active" data-level="1" data-pairs="6">
+              <div class="lvl-title">Iniciante</div>
+              <div class="lvl-meta">6 pares · 12 cartas</div>
+            </div>
+            <div class="level-card" data-level="2" data-pairs="8">
+              <div class="lvl-title">Fácil</div>
+              <div class="lvl-meta">8 pares · 16 cartas</div>
+            </div>
+            <div class="level-card" data-level="3" data-pairs="12">
+              <div class="lvl-title">Médio</div>
+              <div class="lvl-meta">12 pares · 24 cartas</div>
+            </div>
+            <div class="level-card" data-level="4" data-pairs="18">
+              <div class="lvl-title">Difícil</div>
+              <div class="lvl-meta">18 pares · 36 cartas</div>
+            </div>
+          </div>
+
+          <div class="level-picker-title" style="margin-top: 10px;">2. Escolha a Modalidade</div>
+          <div class="mode-type-grid">
+            <div class="mode-type-card active" id="mode-opt-time" data-solo-mode="time-trial">
+              <div class="mode-type-icon">⏱️</div>
+              <div class="mode-type-info">
+                <h3>Desafio de Tempo &amp; Movimentos</h3>
+                <p>Encontre todos os pares sozinho com agilidade para bater recordes.</p>
+              </div>
+            </div>
+            <div class="mode-type-card" id="mode-opt-bot" data-solo-mode="vs-bot">
+              <div class="mode-type-icon">🦊</div>
+              <div class="mode-type-info">
+                <h3>Duelo vs Raposa Azul</h3>
+                <p>Jogue por turnos contra o bot com modelo probabilístico de memória.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="free-record-box" id="free-record-display">
+            <span>Melhor Recorde Neste Nível:</span>
+            <strong id="free-record-text">Nenhum ainda</strong>
+          </div>
+
+          <button class="btn btn-primary btn-block" id="btn-start-freeplay" type="button" style="margin-top: 6px;">
+            Iniciar Partida Livre
+          </button>
+        </div>
+      </div>
+
+      <!-- PAINEL 2: 1x1 ONLINE (Multiplayer) -->
+      <div id="panel-online" class="panel" hidden>
         <label class="field">
           <span>Seu nome</span>
           <input id="name" maxlength="20" autocomplete="nickname" placeholder="Como quer ser chamado?" />
@@ -30,7 +104,7 @@
 
         <div class="split">
           <form id="form-create" class="box">
-            <h2>Nova partida</h2>
+            <h2>Nova partida online</h2>
             <label class="field">
               <span>Tamanho</span>
               <select id="pairs">
@@ -54,7 +128,7 @@
       </div>
     </section>
 
-    <!-- Sala aguardando o segundo jogador -->
+    <!-- Sala aguardando o segundo jogador (1x1 Online) -->
     <section id="screen-lobby" class="screen lobby" hidden>
       <h1>Sala criada!</h1>
       <p class="lead">Envie este link para a outra pessoa. A partida começa quando ela entrar.</p>
@@ -71,14 +145,52 @@
 
     <!-- Partida -->
     <section id="screen-game" class="screen game" hidden>
-      <div class="scoreboard">
+      <!-- HUD 1: Multiplayer 1x1 -->
+      <div class="scoreboard" id="scoreboard-multiplayer">
         <div class="player p0" id="player-0"></div>
         <div class="turn" id="turn"></div>
         <div class="player p1" id="player-1"></div>
       </div>
-      <div class="board" id="board"></div>
+
+      <!-- HUD 2: Solo Desafio (Tempo & Movimentos) -->
+      <div class="solo-scoreboard" id="scoreboard-solo" hidden>
+        <div class="solo-stat-card">
+          <span class="solo-stat-value" id="solo-stage-title">Fase 1.1</span>
+          <span class="solo-stat-label">Objetivo</span>
+        </div>
+        <div class="solo-stat-card highlight">
+          <span class="solo-stat-value" id="solo-time">00:00</span>
+          <span class="solo-stat-label">Tempo</span>
+        </div>
+        <div class="solo-stat-card">
+          <span class="solo-stat-value" id="solo-moves">0</span>
+          <span class="solo-stat-label">Movimentos</span>
+        </div>
+        <div class="solo-stat-card">
+          <span class="solo-stat-value" id="solo-pairs">0 / 6</span>
+          <span class="solo-stat-label">Pares</span>
+        </div>
+      </div>
+
+      <!-- HUD 3: Duelo vs Raposa (Bot) -->
+      <div class="scoreboard" id="scoreboard-bot" hidden>
+        <div class="player p0 active" id="bot-player-user">
+          <div class="info"><div class="name">Você</div><div class="tag">Humano</div></div>
+          <div class="score" id="bot-score-user">0</div>
+        </div>
+        <div class="turn mine" id="bot-turn">Sua vez!</div>
+        <div class="player p1" id="bot-player-fox">
+          <div class="info"><div class="name">Raposa Azul 🦊</div><div class="tag" id="bot-fox-tag">Bot</div></div>
+          <div class="score" id="bot-score-fox">0</div>
+        </div>
+      </div>
+
+      <div class="board-wrapper">
+        <div class="board" id="board"></div>
+      </div>
+
       <div class="game-footer">
-        <span>Sala <strong id="game-code"></strong></span>
+        <span id="game-footer-label">Sala <strong id="game-code"></strong></span>
         <button class="btn btn-ghost btn-sm" data-action="leave" type="button">Sair</button>
       </div>
     </section>
@@ -89,10 +201,12 @@
     <div class="result-card">
       <div class="result-emoji" id="result-emoji"></div>
       <h2 id="result-title"></h2>
+      <div class="stars-row" id="result-stars" hidden></div>
       <p id="result-score"></p>
       <div class="result-actions">
-        <button class="btn btn-primary" id="rematch" type="button">Jogar de novo</button>
-        <button class="btn btn-ghost" data-action="leave" type="button">Sair</button>
+        <button class="btn btn-primary" id="btn-next-stage" type="button" hidden>Próxima Fase ➔</button>
+        <button class="btn btn-outline" id="rematch" type="button">Jogar de novo</button>
+        <button class="btn btn-ghost" data-action="leave" type="button">Sair ao Menu</button>
       </div>
     </div>
   </div>
@@ -101,6 +215,7 @@
 
   <script src="/site.js"></script>
   <script src="/socket.io/socket.io.js"></script>
+  <script src="/solo-engine.js"></script>
   <script src="/app.js"></script>
 </body>
 </html>

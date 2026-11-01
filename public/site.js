@@ -17,7 +17,7 @@
 
   const brand = (small = false) => `
     <a href="/" class="sh-brand">
-      <span class="sh-logo"${small ? ' style="width:32px;height:32px"' : ''}><img src="/Favicon_logo5.png" alt="" /></span>
+      <span class="sh-logo"${small ? ' style="width:40px;height:40px"' : ''}><img src="/bluefox-games-logo.png" alt="" /></span>
       <span class="sh-info">
         <span class="sh-title"${small ? ' style="font-size:1rem"' : ''}>BlueFox</span>
         <span class="sh-tag">Games</span>
@@ -69,7 +69,7 @@
     mount.outerHTML = `
       <footer class="site-footer">
         <div class="site-footer-inner">
-          <div class="footer-brand"><img src="/Favicon_logo5.png" alt="" /><span>BlueFox Games</span></div>
+          <div class="footer-brand"><img src="/bluefox-games-logo.png" alt="" /><span>BlueFox Games</span></div>
           <nav class="footer-links" aria-label="Rodapé">
             ${NAV.map((n) => `<a href="${n.href}">${n.label}</a>`).join('')}
             <button type="button" data-login>Login</button>
@@ -88,7 +88,7 @@
     modal.innerHTML = `
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="login-title">
         <button type="button" class="modal-close" data-close aria-label="Fechar">✕</button>
-        <div class="modal-logo"><img src="/Favicon_logo5.png" alt="" /></div>
+        <div class="modal-logo"><img src="/bluefox-games-logo.png" alt="" /></div>
         <h2 id="login-title">Entrar com Blue Fox ID</h2>
         <p>Em breve você poderá entrar com a mesma conta do ecossistema Blue Fox para salvar seu histórico de partidas e aparecer no ranking. Por enquanto, todos os jogos funcionam como convidado, sem cadastro.</p>
         <div class="modal-actions">

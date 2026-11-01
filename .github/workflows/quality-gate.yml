@@ -1,0 +1,93 @@
+name: Quality Gate & Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      # Node 22 = mesma versão do Dockerfile (npm 10), evita divergência de lockfile
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Instalar dependências (CI safe)
+        run: npm ci
+
+      - name: Audit de segurança (falha apenas em falhas críticas)
+        run: npm audit --audit-level=critical
+
+      - name: Rodar testes
+        run: npm run test
+
+      - name: Build do projeto
+        run: npm run build
+
+      - name: Build da imagem Docker de produção
+        run: docker build --target runner -t blue-fox-games:ci .
+
+  deploy:
+    name: Deploy to VPS
+    needs: quality-gate
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Executar Deploy via SSH na VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            set -e
+            echo "🚀 [Deploy] Iniciando deploy do Blue Fox Games na VPS..."
+
+            # Localiza automaticamente o diretório no home do usuário deployer
+            if [ -d "$HOME/apps/blue-fox/blue-fox-games" ]; then
+              TARGET_DIR="$HOME/apps/blue-fox/blue-fox-games"
+            elif [ -d "$HOME/apps/blue-fox-games" ]; then
+              TARGET_DIR="$HOME/apps/blue-fox-games"
+            elif [ -n "${{ secrets.VPS_GAMES_APP_PATH }}" ]; then
+              TARGET_DIR=$(echo "${{ secrets.VPS_GAMES_APP_PATH }}" | tr -d '\r\n' | xargs)
+            else
+              TARGET_DIR="$HOME/apps/blue-fox/blue-fox-games"
+            fi
+
+            echo "📂 Diretório de trabalho: $TARGET_DIR"
+            cd "$TARGET_DIR"
+
+            # Garante remote HTTPS para evitar erro de SSH Host Key na VPS
+            git remote set-url origin https://github.com/FelipeFerraz4/blue-fox-games.git
+
+            echo "📥 Atualizando código fonte da branch main..."
+            git fetch origin main
+            git checkout main
+            git reset --hard origin/main
+
+            echo "🐳 Recriando containers com Docker Compose..."
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.prod down || true
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.prod up -d --build
+
+            echo "🧹 Removendo imagens órfãs/antigas..."
+            docker image prune -f
+
+            echo "✅ [Deploy] Deploy do Blue Fox Games concluído com sucesso!"
