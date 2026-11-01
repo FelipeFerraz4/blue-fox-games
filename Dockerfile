@@ -29,5 +29,5 @@ COPY public ./public/
 USER node
 EXPOSE 3001
 HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -qO- http://localhost:${PORT:-3001}/ >/dev/null || exit 1
+  CMD wget -qO- http://127.0.0.1:${PORT:-3001}/ >/dev/null || exit 1
 CMD ["node", "dist/main"]
