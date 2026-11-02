@@ -560,3 +560,186 @@ canvas#defenseCanvas {
 .touch-btn.bomb:active {
   background: var(--hud-amber);
 }
+
+/* ---------- Mobile: telas de toque ----------
+ * Sem cabeçalho: os botões de menu flutuam no canto da barra de HUD e o campo de jogo
+ * ocupa o resto da tela (o tamanho do canvas é calculado em applyViewport, no engine).
+ * Reservas de altura/largura precisam bater com applyViewport.
+ */
+.btn-exit-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+@media (pointer: coarse), (max-width: 850px) {
+  .defense-layout {
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* Cabeçalho vira um grupo de ícones sobre a barra de HUD */
+  .defense-nav {
+    position: fixed;
+    top: 7px;
+    right: max(6px, env(safe-area-inset-right));
+    padding: 0;
+    background: none;
+    border: 0;
+    backdrop-filter: none;
+    z-index: 40;
+  }
+  .defense-nav-left {
+    display: none;
+  }
+  .defense-nav-right {
+    gap: 4px;
+  }
+  .defense-icon-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 0;
+    padding: 0;
+    justify-content: center;
+    font-size: 0.95rem;
+    border-radius: 10px;
+  }
+  .defense-icon-btn span + span {
+    display: none;
+  }
+
+  .game-viewport-container {
+    justify-content: flex-start;
+    padding: 6px 6px max(6px, env(safe-area-inset-bottom));
+    max-width: none;
+  }
+
+  /* HUD compacto numa linha; a direita fica livre para os ícones */
+  .cockpit-hud-top {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 10px;
+    height: 46px;
+    max-width: none;
+    margin-bottom: 6px;
+    padding: 4px 124px 4px 12px;
+    border-radius: 12px;
+  }
+  .cockpit-hud-top .hud-item:nth-child(3) .hud-label,
+  .cockpit-hud-top .hud-item:nth-child(5) .hud-label {
+    display: none;
+  }
+  .cockpit-hud-top .hud-item:nth-child(6) .hud-label {
+    font-size: 0;
+  }
+  .cockpit-hud-top .hud-item:nth-child(6) .hud-label::before {
+    content: '💣';
+    font-size: 0.8rem;
+  }
+  #btnMapToggle {
+    display: none;
+  }
+  .cockpit-hud-top .hud-label {
+    white-space: nowrap;
+  }
+  .cockpit-hud-top .hud-item:nth-child(1),
+  .cockpit-hud-top .hud-item:nth-child(2) {
+    display: none;
+  }
+  .cockpit-hud-top .hud-item:nth-child(5) {
+    flex: 1;
+    min-width: 40px;
+  }
+  .hud-label {
+    font-size: 0.55rem;
+  }
+  .hud-value {
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+  .hud-shields-bar {
+    width: 100%;
+    height: 8px;
+    margin-top: 6px;
+  }
+
+  .canvas-wrapper {
+    border-radius: 12px;
+    max-width: none;
+    max-height: none;
+    flex: none;
+  }
+
+  .cockpit-upgrades-bar {
+    display: none;
+  }
+
+  /* Telas (briefing, mapa, vitória...) ocupam o celular inteiro e rolam */
+  .overlay-screen {
+    position: fixed;
+    z-index: 50;
+    overflow-y: auto;
+    justify-content: safe center;
+    padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+  }
+  .briefing-box {
+    max-width: 560px;
+    padding: 20px;
+  }
+  .briefing-title {
+    font-size: 1.45rem;
+  }
+  .briefing-text {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  .btn-defense-primary,
+  .btn-defense-secondary {
+    min-height: 44px;
+    font-size: 0.95rem;
+    padding: 10px 18px;
+  }
+
+  /* Botões de toque semitransparentes, flutuando sobre a base do campo */
+  .touch-controls {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    height: auto;
+    margin: 0;
+    padding: 0 max(14px, env(safe-area-inset-left)) 0 max(14px, env(safe-area-inset-right));
+    max-width: none;
+    pointer-events: none;
+    z-index: 25;
+  }
+  .touch-dpad,
+  .touch-actions {
+    gap: 14px;
+  }
+  .touch-btn {
+    pointer-events: auto;
+    width: 56px;
+    height: 56px;
+    font-size: 1.35rem;
+    background: rgba(15, 23, 42, 0.35);
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    box-shadow: none;
+    backdrop-filter: blur(2px);
+    opacity: 0.8;
+  }
+  .touch-btn.fire {
+    width: 64px;
+    height: 64px;
+    font-size: 1.5rem;
+    background: rgba(239, 68, 68, 0.28);
+    border-color: rgba(239, 68, 68, 0.55);
+  }
+  .touch-btn.bomb {
+    background: rgba(245, 158, 11, 0.25);
+    border-color: rgba(245, 158, 11, 0.5);
+  }
+}

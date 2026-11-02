@@ -2,7 +2,7 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Milky Way Defense (Defesa da Via Láctea) · Blue Fox Games</title>
     <meta
       name="description"
@@ -37,6 +37,9 @@
           </button>
           <button id="btnPauseToggle" class="defense-icon-btn" title="Pausar / Continuar">
             <span>⏸️</span>
+          </button>
+          <button id="btnFullscreen" class="defense-icon-btn" title="Tela cheia" hidden>
+            <span>⛶</span>
           </button>
           <button id="btnSoundToggle" class="defense-icon-btn" title="Alternar Som">
             <span>🔊</span>
@@ -128,6 +131,7 @@
               <div style="display: flex; gap: 12px; justify-content: center; margin-top: 16px; flex-wrap: wrap;">
                 <button id="btnResumeFromMap" class="btn-defense-primary">Entrar na Fase Selecionada</button>
                 <button id="btnShowCrawl" class="btn-defense-secondary">📜 Rever História Completa</button>
+                <a href="/jogos" class="btn-defense-secondary btn-exit-link">Sair para os jogos</a>
               </div>
             </div>
           </div>
@@ -167,6 +171,7 @@
               <div style="display: flex; gap: 12px; justify-content: center; margin-top: 20px;">
                 <button id="btnResumePause" class="btn-defense-primary">Retomar Combate</button>
                 <button id="btnQuitToMap" class="btn-defense-secondary">Mapa do Sistema Solar</button>
+                <a href="/jogos" class="btn-defense-secondary btn-exit-link">Sair para os jogos</a>
               </div>
             </div>
           </div>
@@ -200,5 +205,27 @@
     <!-- Scripts de Dados Narrativos e Motor do Jogo -->
     <script src="/defense-story.js"></script>
     <script src="/defense-engine.js"></script>
+    <script>
+      // Tela cheia + trava em paisagem (Android/Chrome). No iPhone o botão fica oculto.
+      (function () {
+        const btn = document.getElementById('btnFullscreen');
+        const root = document.documentElement;
+        if (!btn || !root.requestFullscreen) return;
+        btn.hidden = false;
+        btn.addEventListener('click', async () => {
+          try {
+            if (document.fullscreenElement) {
+              await document.exitFullscreen();
+              if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+            } else {
+              await root.requestFullscreen();
+              if (screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape');
+            }
+          } catch (e) {
+            /* sem suporte ou bloqueado pelo navegador: segue sem travar */
+          }
+        });
+      })();
+    </script>
   </body>
 </html>

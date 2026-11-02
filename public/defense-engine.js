@@ -1150,11 +1150,12 @@
 
       this.currentStageIndex = stageIndex;
       this.currentStage = s;
+      this.applyViewport();
       this.state = 'PLAYING';
 
       // Reset de combate
       this.player.x = this.V_WIDTH / 2;
-      this.player.y = this.V_HEIGHT - 65;
+      this.player.y = this.playerStartY();
       this.player.shields = this.player.maxShields;
       this.playerBullets = [];
       this.bombShots = [];
@@ -1182,12 +1183,12 @@
     buildFleet(waveConfig) {
       this.alienFleet = [];
       const wave = waveConfig || {};
-      const rows = wave.rows || 4;
-      const cols = wave.cols || 8;
       const alienW = 34;
       const alienH = 26;
       const gapX = 18;
       const gapY = 16;
+      const rows = Math.min(wave.rows || 4, this.maxFleetRows(alienH, gapY));
+      const cols = Math.min(wave.cols || 8, this.maxFleetCols(alienW, gapX));
       const startX = (this.V_WIDTH - (cols * (alienW + gapX) - gapX)) / 2;
       const startY = 70;
 
@@ -1527,12 +1528,12 @@
       this.boss.alive = true;
       this.audio.playExplosion(true);
 
-      const cols = 8;
-      const rows = 3;
+      const rows = Math.min(3, Math.max(1, Math.floor((this.V_HEIGHT * 0.6 - 170) / 42)));
       const alienW = 34;
       const alienH = 26;
       const gapX = 18;
       const gapY = 16;
+      const cols = Math.min(8, this.maxFleetCols(alienW, gapX));
       const startX = (this.V_WIDTH - (cols * (alienW + gapX) - gapX)) / 2;
       const startY = 170;
       let idCounter = this.alienFleet.length;
@@ -2483,6 +2484,9 @@
         e.preventDefault();
         callback(false);
       });
+      elem.addEventListener('touchcancel', () => {
+        callback(false);
+      });
       elem.addEventListener('mousedown', (e) => {
         e.preventDefault();
         callback(true);
@@ -2494,6 +2498,77 @@
       elem.addEventListener('mouseleave', () => {
         callback(false);
       });
+    }
+
+    // -------------------------------------------------------------
+    // Tamanho do campo de jogo: 800x600 no desktop; no celular a proporção acompanha a tela
+    // -------------------------------------------------------------
+    maxFleetCols(alienW, gapX) {
+      return Math.max(4, Math.floor((this.V_WIDTH - 40 + gapX) / (alienW + gapX)));
+    }
+
+    // No celular os botões de toque cobrem a base do campo, então a nave sobe um pouco
+    playerStartY() {
+      return this.V_HEIGHT - (this.isMobileLayout() ? 110 : 65);
+    }
+
+    // Em telas baixas a frota perde fileiras para sobrar espaço entre ela e a nave
+    maxFleetRows(alienH, gapY) {
+      return Math.max(2, Math.floor((this.V_HEIGHT * 0.5 - 54) / (alienH + gapY)));
+    }
+
+    isMobileLayout() {
+      return window.matchMedia('(pointer: coarse), (max-width: 850px)').matches;
+    }
+
+    applyViewport() {
+      const wrapper = this.canvas.parentElement;
+      const mobile = this.isMobileLayout();
+      let w = 800;
+      let h = 600;
+      let boxW = 0;
+      let boxH = 0;
+
+      if (mobile) {
+        // Reserva (px) para a linha de HUD; os botões de toque flutuam sobre o campo (defense.css)
+        const portrait = window.innerHeight > window.innerWidth;
+        const availW = window.innerWidth - 12;
+        const availH = window.innerHeight - 52 - 10;
+
+        if (portrait) {
+          w = 480;
+          h = Math.min(900, Math.max(560, Math.round((480 * availH) / availW)));
+        } else {
+          w = 800;
+          h = Math.min(600, Math.max(400, Math.round((800 * availH) / availW)));
+        }
+
+        const scale = Math.min(availW / w, availH / h);
+        boxW = Math.floor(w * scale);
+        boxH = Math.floor(h * scale);
+      }
+
+      // Só muda a resolução lógica fora do combate, para não deslocar a frota em andamento
+      if (this.state !== 'PLAYING' && this.state !== 'PAUSED' && (w !== this.V_WIDTH || h !== this.V_HEIGHT)) {
+        this.V_WIDTH = w;
+        this.V_HEIGHT = h;
+        this.canvas.width = w;
+        this.canvas.height = h;
+        this.player.x = w / 2;
+        this.player.y = this.playerStartY();
+        this.initStarfield();
+      }
+
+      if (mobile) {
+        const scale = Math.min(boxW / this.V_WIDTH, boxH / this.V_HEIGHT);
+        wrapper.style.aspectRatio = 'auto';
+        wrapper.style.width = `${Math.floor(this.V_WIDTH * scale)}px`;
+        wrapper.style.height = `${Math.floor(this.V_HEIGHT * scale)}px`;
+      } else {
+        wrapper.style.aspectRatio = '';
+        wrapper.style.width = '';
+        wrapper.style.height = '';
+      }
     }
 
     togglePause() {
@@ -2510,6 +2585,16 @@
 
   // Inicialização quando a página carregar
   window.addEventListener('DOMContentLoaded', () => {
-    window.milkyWayDefense = new MilkyWayDefenseGame();
+    const game = new MilkyWayDefenseGame();
+    window.milkyWayDefense = game;
+
+    game.applyViewport();
+    let resizeTimer = null;
+    const onResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => game.applyViewport(), 120);
+    };
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', onResize);
   });
 })();
